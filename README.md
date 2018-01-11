@@ -7,5 +7,6 @@ This module increases PowerShell Core 6 compatibility with existing Windows Powe
   - WMI cmdlets
   - EventLog cmdlets
   - PerfCounter cmdlets
+- optionally add back Windows PowerShell aliases removed from PowerShell Core
 
 Initiated from https://blogs.msdn.microsoft.com/dotnet/2017/11/16/announcing-the-windows-compatibility-pack-for-net-core/
