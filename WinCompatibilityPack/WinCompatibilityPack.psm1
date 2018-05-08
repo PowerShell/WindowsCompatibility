@@ -1,4 +1,8 @@
-﻿#requires -Version 6
+﻿###########################################################################################
+# Copyright (c) Microsoft Corporation. All rights reserved.
+# Licensed under the MIT License.
+
+#requires -Version 6
 
 using namespace System.Management.Automation.
 using namespace System.Management.Automation.Runspaces
@@ -12,7 +16,8 @@ $NeverImportList = @(
     "PackageManagement",
     "PowerShellGet",
     "Microsoft.PowerShell.Archive",
-    "Microsoft.PowerShell.Host"
+    "Microsoft.PowerShell.Host",
+    "WinCompatibilityPack"
 )
 
 ###########################################################################################
@@ -27,44 +32,54 @@ $NeverClobberList = @(
 )
 
 ###########################################################################################
-# A list of modules that exist in Windows PowerShell that aren't available
+# A list of compatibile modules that exist in Windows PowerShell that aren't available
 # to PowerShell Core by default. These modules, along with CIM modules can be installed
-# in the PowerShell Core module repository using the Copy-WPSCPModule command.
+# in the PowerShell Core module repository using the Copy-WinModule command.
 $CompatibleModules = @(
+    "AppBackgroundTask",
     "AppLocker",
-    "AppvClient",
     "Appx",
     "AssignedAccess",
-    "BestPractices",
     "BitLocker",
+    "BranchCache",
     "CimCmdlets",
     "ConfigCI",
+    "Defender",
     "DeliveryOptimization",
     "DFSN",
     "DFSR",
+    "DirectAccessClientComponents",
     "Dism",
+    "EventTracingManagement",
     "GroupPolicy",
     "Hyper-V",
     "International",
     "IscsiTarget",
     "Kds",
-    "Microsoft.PowerShell.ODataUtils",
+    "MMAgent",
+    "MsDtc",
+    "NetAdapter",
+    "NetConnection",
+    "NetSecurity",
+    "NetTCPIP",
+    "NetworkConnectivityStatus",
     "NetworkControllerDiagnostics",
     "NetworkLoadBalancingClusters",
     "NetworkSwitchManager",
+    "NetworkTransition",
     "PKI",
+    "PnpDevice",
+    "PrintManagement",
     "ProcessMitigations",
     "Provisioning",
     "PSScheduledJob",
+    "ScheduledTasks",
     "SecureBoot",
-    "ServiceFabric",
-    "ShieldedVMDataFile",
-    "ShieldedVMTemplate",
-    "StartLayout",
-    "TLS",
+    "SmbShare",
+    "Storage",
     "TrustedPlatformModule",
-    "UEV",
-    "UpdateServices",
+    "VpnClient",
+    "Wdac",
     "WindowsDeveloperLicense",
     "WindowsErrorReporting",
     "WindowsSearch",
@@ -95,16 +110,16 @@ $DefaultComputerName = 'localhost'
    This command is called by the other commands in this module so
    you will rarely call this command directly. 
 .EXAMPLE
-    Initialize-WPSCPSession
+    Initialize-WinSession
     Initialize the default compatibility session
 .EXAMPLE
-    Initialize-WPSCPSession -ComputerName localhost -ConfigurationName Microsoft.PowerShell
+    Initialize-WinSession -ComputerName localhost -ConfigurationName Microsoft.PowerShell
     Initialize the compatibility session with a specific computer name and configuration
 #>
-function Initialize-WPSCPSession
+function Initialize-WinSession
 {
     [CmdletBinding()]
-    [Alias("iwpscps")]
+    [Alias("iwins")]
     [OutputType("System.Management.Automation.Runspaces.PSSession")]
     Param (
 
@@ -149,11 +164,11 @@ function Initialize-WPSCPSession
     Write-Verbose -Verbose:$verboseFlag "Initializing the compatibility session on host '$ComputerName'."
     if ($Credential)
     {
-        $script:SessionName = "wpscp-$($Credential.UserName)"
+        $script:SessionName = "win-$($Credential.UserName)"
     }
     else
     {
-        $script:SessionName = "wpscp-$((Get-ChildItem env:UserName).Value)"
+        $script:SessionName = "win-$((Get-ChildItem env:UserName).Value)"
     }
     Write-Verbose -Verbose:$verboseFlag "The compatibility session name is '$script:SessionName'."
 
@@ -213,17 +228,17 @@ function Initialize-WPSCPSession
     will be created. This behaviour can be overridden using the
     additional parameters on the command.
 .EXAMPLE
-    Add-WPSCPFunction myFunction {param ($n) "Hi $n!"; $PSVersionTable.PSEdition }
+    Add-WinFunction myFunction {param ($n) "Hi $n!"; $PSVersionTable.PSEdition }
     This example defines a function called 'myFunction' with 1 parameter. When invoked it will print a message then return the PSVersion table
     from the compatibility session. Now call the function
     PS C:\> myFunction Bill
     Hi Bill!
     Desktop
 #>
-function Add-WPSCPFunction
+function Add-WinFunction
 {
     [CmdletBinding()]
-    [Alias("awpscpf")]
+    [Alias("awinf")]
     [OutputType([void])]
     Param
     (
@@ -263,7 +278,7 @@ function Add-WPSCPFunction
     [void] $PSBoundParameters.Remove('FunctionName')
     [void] $PSBoundParameters.Remove('ScriptBlock')
 
-    Initialize-WPSCPSession @PSBoundParameters
+    Initialize-WinSession @PSBoundParameters
 
     $scriptToRun = @"
     param()
@@ -289,7 +304,7 @@ function Add-WPSCPFunction
     will be created. This behaviour can be overridden using the
     additional parameters on the command.
 .EXAMPLE
-    Invoke-WPSCPCommand {param ($name) "Hello $name, how are you?"; $PSVersionTable.PSVersion} Jeffrey
+    Invoke-WinCommand {param ($name) "Hello $name, how are you?"; $PSVersionTable.PSVersion} Jeffrey
     Hello Jeffrey, how are you?
     Major  Minor  Build  Revision PSComputerName
     -----  -----  -----  -------- --------------
@@ -299,15 +314,15 @@ function Add-WPSCPFunction
     session. This scriptblock will simply print a message and then return 
     the version number of the compatibility session.
 .EXAMPLE
-    Invoke-WPSCPCommand {Get-EventLog -Log Application -New 10 }
+    Invoke-WinCommand {Get-EventLog -Log Application -New 10 }
 
     This examples invokes Get-EventLog in the compatibility session,
     returning the 10 newest events in the application log.
 #>
-function Invoke-WPSCPCommand
+function Invoke-WinCommand
 {
     [CmdletBinding()]
-    [Alias("iwpscpc")]
+    [Alias("iWinc")]
     [OutputType([void])]
     Param
     (
@@ -346,7 +361,7 @@ function Invoke-WPSCPCommand
     [void] $PSBoundParameters.Remove('ArgumentList')
 
     # Make sure the session is initialized
-    $session = Initialize-WPSCPSession @PSBoundParameters -PassThru
+    $session = Initialize-WinSession @PSBoundParameters -PassThru
 
     # And invoke the scriptblock in the session
     Invoke-Command -Session $session -ScriptBlock $ScriptBlock -ArgumentList $ArgumentList
@@ -364,7 +379,7 @@ function Invoke-WPSCPCommand
     will be created. This behaviour can be overridden using the
     additional parameters on this command.
 .EXAMPLE
-    Get-WPSCPModule *PNP*
+    Get-WinModule *PNP*
     Name      Version Description
     ----      ------- -----------
     PnpDevice 1.0.0.0
@@ -372,10 +387,10 @@ function Invoke-WPSCPCommand
     This example looks for modules in the compatibility session with the string 'PNP' 
     in their name.
 #>
-function Get-WPSCPModule
+function Get-WinModule
 {
     [CmdletBinding()]
-    [Alias("gwpscpm")]
+    [Alias("gWinm")]
     [OutputType([int])]
     Param
     (
@@ -415,7 +430,7 @@ function Get-WPSCPModule
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
 
     Write-Verbose -Verbose:$verboseFlag 'Connecting to compatibility session.'
-    $s = Initialize-WPSCPSession -ComputerName $ComputerName `
+    $s = Initialize-WinSession -ComputerName $ComputerName `
         -ConfigurationName $ConfigurationName -Credential $Credential -PassThru
     
     if ($name -ne '*')
@@ -452,26 +467,26 @@ function Get-WPSCPModule
     will be created. This behaviour can be overridden using the
     additional parameters on the command.
 .EXAMPLE
-    Import-WPSCPModule PnpDevice; Get-Command -Module PnpDevice
+    Import-WinModule PnpDevice; Get-Command -Module PnpDevice
 
     This example imports the 'PnpDevice' module.
 .EXAMPLE
-    Import-WPSCPModule Microsoft.PowerShell.Management; Get-Command Get-EventLog
+    Import-WinModule Microsoft.PowerShell.Management; Get-Command Get-EventLog
 
     This example imports one of the core Windows PowerShell modules
     containing commands not natively available in PowerShell Core such
     as 'Get-EventLog'. Only commands not already present in PowerShell Core
     will be imported.
 .EXAMPLE
-    Import-WPSCPModule PnpDevice -Verbose -Force
+    Import-WinModule PnpDevice -Verbose -Force
 
     This example forces a reload of the module 'PnpDevice' with
     verbose output turned on.
 #>
-function Import-WPSCPModule
+function Import-WinModule
 {
     [CmdletBinding()]
-    [Alias("iwpscpm")]
+    [Alias("iWinm")]
     [OutputType([int])]
     Param
     (
@@ -541,7 +556,7 @@ function Import-WPSCPModule
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
 
     Write-Verbose -Verbose:$verboseFlag "Connecting to compatibility session."
-    [PSSession] $session = Initialize-WPSCPSession -Verbose:$verboseFlag `
+    [PSSession] $session = Initialize-WinSession -Verbose:$verboseFlag `
         -ComputerName $ComputerName -ConfigurationName $ConfigurationName `
         -Credential $Credential -PassThru
 
@@ -590,7 +605,8 @@ function Import-WPSCPModule
                 -DisableNameChecking:$DisableNameChecking -NoClobber @ImportOpts
         }
     }
-    else {
+    else
+    {
         Write-Verbose -Verbose:$verboseFlag "No matching modules were found; nothing was imported"
     }
 }
@@ -604,14 +620,14 @@ function Import-WPSCPModule
    Compare the set of modules for this version of PowerShell
    against those available in the comptibility session.
 .EXAMPLE
-   Compare-WPSCPModule
+   Compare-WinModule
 .EXAMPLE
-   Compare-WPSCPModule A*
+   Compare-WinModule A*
 #>
-function Compare-WPSCPModule
+function Compare-WinModule
 {
     [CmdletBinding()]
-    [Alias("cwpscpm")]
+    [Alias("cWinm")]
     [OutputType([int])]
     Param
     (
@@ -645,7 +661,7 @@ function Compare-WPSCPModule
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
 
     Write-Verbose -Verbose:$verboseFlag "Initializing compatibility session"
-    [PSSession] $session = Initialize-WPSCPSession -Verbose:$verboseFlag -ComputerName $ComputerName `
+    [PSSession] $session = Initialize-WinSession -Verbose:$verboseFlag -ComputerName $ComputerName `
             -ConfigurationName $ConfigurationName `
             -Credential $Credential -PassThru
 
@@ -678,19 +694,19 @@ function Compare-WPSCPModule
    Note that if there already is a module in the destination corresponding to the module
    to be copied's name, it will not be copied. 
 .EXAMPLE
-    Copy-WPSCPModule hyper-v -WhatIf -Verbose
+    Copy-WinModule hyper-v -WhatIf -Verbose
 
     Run the copy command with -WhatIf to see what would be copied to $PSHome/Modules.
     Also show Verose information.
 .EXAMPLE
-    PS C:\> Copy-WPSCPModule hyper-v -Destination ~/Documents/PowerShell/Modules
+    PS C:\> Copy-WinModule hyper-v -Destination ~/Documents/PowerShell/Modules
 
     Copy the specified module to your user module directory.
 #>
-function Copy-WPSCPModule
+function Copy-WinModule
 {
     [CmdletBinding()]
-    [Alias("cpwpscpm")]
+    [Alias("cpwinm")]
     [OutputType([int])]
     Param
     (
@@ -733,7 +749,7 @@ function Copy-WPSCPModule
 
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
 
-    [PSSession] $session = Initialize-WPSCPSession -Verbose:$verboseFlag -ComputerName $ComputerName `
+    [PSSession] $session = Initialize-WinSession -Verbose:$verboseFlag -ComputerName $ComputerName `
                                 -ConfigurationName $ConfigurationName `
                                 -Credential $Credential -PassThru
 
@@ -780,9 +796,9 @@ function Copy-WPSCPModule
             Copy-Item -WhatIf:$WhatIf -Verbose:$verboseFlag -Path $m.ModuleBase `
                 -Destination $fullDestination -Recurse @CopyOptions
         }
-        else {
+        else
+        {
             Write-Verbose -Verbose:$verboseFlag "Skipping module '$($m.Name)'; module directory already exists"
         }
     }
 }
-
