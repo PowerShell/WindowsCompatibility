@@ -104,7 +104,7 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
 
     It "Copy-WinModule should copy the specified module to the destination path" {
         $tempDirToUse = Join-Path TestDrive: "tmp$(Get-Random)"
-        mkdir $tempDirToUse
+        New-Item -ItemType directory $tempDirToUse
 
         Copy-WinModule PnpDevice -Destination $tempDirToUse
         # Ensure that the module directory exists
