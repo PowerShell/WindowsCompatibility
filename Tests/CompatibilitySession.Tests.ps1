@@ -43,7 +43,7 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
     It "Get-WinModule should return a single value for PnpDevice" {
         $info = Get-WinModule PnpDevice
         $info | Should -Not -BeNullOrEmpty
-        $info.Name | Should -BeExactly PnpDevice 
+        $info.Name | Should -BeExactly "PnpDevice"
     }
 
     It "Import-WinModule should import the PnpDevice module" {
@@ -53,7 +53,7 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         # Now import the proxy module, returning the ModuleInfo object
         $info = Import-WinModule PnpDevice -PassThru
         $info | Should -Not -BeNullOrEmpty
-        $info.Name | Should -BeExactly PnpDevice
+        $info.Name | Should -BeExactly "PnpDevice"
         $info.ModuleType | Should -BeExactly "Script"
 
         # Verify that the commands were imported as proxies
@@ -77,9 +77,9 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         # Import the proxy module
         Import-WinModule  Microsoft.PowerShell.Management
         $cmd = Get-Command Get-ChildItem
-        $cmd.Module.ModuleType | Should -BeExactly Manifest
+        $cmd.Module.ModuleType | Should -BeExactly "Manifest"
         $cmd2 = Get-Command Get-EventLog
-        $cmd2.Module.ModuleType | Should -BeExactly Script
+        $cmd2.Module.ModuleType | Should -BeExactly "Script"
         Get-EventLog -LogName Application -Newest 1 | Should -Not -BeNullOrEmpty
     }
 
@@ -89,17 +89,20 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         $function:myFunction | Should -Not -BeNullOrEmpty
         $msg, $edition = myFunction Bill
         $msg | Should -BeExactly "Hi Bill!"
-        $edition | Should -BeExactly Desktop
+        $edition | Should -BeExactly "Desktop"
     }
 
     It "Invoke-WinCommand should return information from the compatibility session" {
         $result = Invoke-WinCommand { $PSVersionTable.PSEdition }
-        $result | Should -BeExactly Desktop
+        $result | Should -BeExactly "Desktop"
     }
 
     It "Compare-WinModule should return a non-null collection of modules" {
-        $modules = Compare-WinModule Azure* 
+        $pattern = 'Azure*'
+        $modules = Compare-WinModule $pattern
         $modules | Should -Not -BeNullOrEmpty
+        # Verify that the deserialized object's typenames contains PSModuleInfo
+        $modules[0].Name | Should -BeLike $pattern
     }
 
     It "Copy-WinModule should copy the specified module to the destination path" {

@@ -1,4 +1,4 @@
-﻿###########################################################################################
+###########################################################################################
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
@@ -23,7 +23,7 @@ $NeverImportList = @(
 ###########################################################################################
 # The following is a list of modules native to PowerShell Core that don't have all of
 # the functionality of Windows PowerShell 5.1 versions. These modules can be imported but 
-# will not over-write any existing PowerShell Core commands
+# will not overwrite any existing PowerShell Core commands
 $NeverClobberList = @(
     "Microsoft.PowerShell.Management",
     "Microsoft.PowerShell.Utility",
@@ -120,7 +120,7 @@ function Initialize-WinSession
 {
     [CmdletBinding()]
     [Alias("iwins")]
-    [OutputType("System.Management.Automation.Runspaces.PSSession")]
+    [OutputType([System.Management.Automation.Runspaces.PSSession])]
     Param (
 
         # If you don't want to use the default compatibility session, use
@@ -146,12 +146,7 @@ function Initialize-WinSession
         # If present, the specified session object will be returned
         [Parameter()]
         [Switch]
-            $PassThru,
-
-        # Instead of initializing the session, show what actions will be taken instead.
-        [Parameter()]
-        [Switch]
-            $WhatIf
+            $PassThru
     )
 
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
@@ -168,7 +163,7 @@ function Initialize-WinSession
     }
     else
     {
-        $script:SessionName = "win-$((Get-ChildItem env:UserName).Value)"
+        $script:SessionName = "win-$([environment]::UserName)"
     }
     Write-Verbose -Verbose:$verboseFlag "The compatibility session name is '$script:SessionName'."
 
@@ -186,17 +181,16 @@ function Initialize-WinSession
         $session = $null
     }
 
-    if (! $session)
+    if (-not $session)
     {
         $SessionOpts = @{}
         if ($Credential)
         {
             $SessionOpts.Credential = $Credential
         }
-        if ($ComputerName -eq "." -or $ComputerName -eq (hostname) -or $ComputerName -eq "localhost")
+        if ($ComputerName -eq "localhost" -or $ComputerName -eq (hostname))
         {
             $SessionOpts.EnableNetworkAccess = $true
-            
         }
         Write-Verbose -Verbose:$verboseFlag "Creating a new compatibility session."
         ##BUGBUG need to deal with the case where there might be multiple sessions because someone hit ctrl-C
@@ -280,13 +274,11 @@ function Add-WinFunction
 
     Initialize-WinSession @PSBoundParameters
 
-    $scriptToRun = @"
-    param()
-    
-    `$session = Get-PSsession -Name ${script:SessionName}
-    Invoke-Command -Session `$session -Scriptblock `$ScriptBlock -ArgumentList `$args
-"@
-    $wrapper = [ScriptBlock]::Create($scriptToRun)
+    $localSessionName = $script:SessionName
+    $wrapper = {
+        $session = Get-PSsession -Name $localSessionName
+        Invoke-Command -Session $session -Scriptblock $ScriptBlock -ArgumentList $args
+    }
     Set-item function:Global:$FunctionName $wrapper.GetNewClosure();
 }
 
@@ -322,8 +314,8 @@ function Add-WinFunction
 function Invoke-WinCommand
 {
     [CmdletBinding()]
-    [Alias("iWinc")]
-    [OutputType([void])]
+    [Alias('iwinc')]
+    [OutputType([PSObject])]
     Param
     (
         # The scriptblock to invoke in the compatibility session
@@ -390,8 +382,8 @@ function Invoke-WinCommand
 function Get-WinModule
 {
     [CmdletBinding()]
-    [Alias("gWinm")]
-    [OutputType([int])]
+    [Alias("gwinm")]
+    [OutputType([PSObject])]
     Param
     (
         # Pattern to filter module names by
@@ -487,7 +479,7 @@ function Import-WinModule
 {
     [CmdletBinding()]
     [Alias("iWinm")]
-    [OutputType([int])]
+    [OutputType([PSObject])]
     Param
     (
         # Specifies the name of the module to be imported. Wildcards can be used.
@@ -541,13 +533,9 @@ function Import-WinModule
         [Parameter()]
         [PSCredential]
             $Credential,
-
-        # Show what will be imported instead of importing the modules
-        [Parameter()]
-        [Switch]
-            $WhatIf,
         
         # If present, the ModuleInfo objects will be written to the output pipe
+        # as deserialized (PSObject) objects
         [Parameter()]
         [Switch]
             $PassThru
@@ -614,26 +602,32 @@ function Import-WinModule
 ###########################################################################################
 <#
 .Synopsis
-   Compare the set of modules for this version of PowerShell
-   against those available in the comptibility session.
+    Compare the set of modules for this version of PowerShell
+    against those available in the comptibility session.
 .DESCRIPTION
-   Compare the set of modules for this version of PowerShell
-   against those available in the comptibility session.
+    Compare the set of modules for this version of PowerShell
+    against those available in the comptibility session.
 .EXAMPLE
-   Compare-WinModule
+    Compare-WinModule
+
+    This will return a list of all of the modules available in the compatibility
+    session that are not currently available in the PowerShell Core environment
 .EXAMPLE
-   Compare-WinModule A*
+    Compare-WinModule A*
+
+    This will return a list of all of the compatibility session modules matching
+    the wildcard pattern 'A*'
 #>
 function Compare-WinModule
 {
     [CmdletBinding()]
-    [Alias("cWinm")]
-    [OutputType([int])]
+    [Alias("cwinm")]
+    [OutputType([PSObject])]
     Param
     (
         # Specifies the names or name patterns of for the modules to compare. 
         # Wildcard characters are permitted.
-        [Parameter(Mandatory=$false, Position=0)]
+        [Parameter(Position=0)]
         [String[]]
             $Name="*",
 
@@ -705,9 +699,9 @@ function Compare-WinModule
 #>
 function Copy-WinModule
 {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     [Alias("cpwinm")]
-    [OutputType([int])]
+    [OutputType([void])]
     Param
     (
         # Specifies names or name patterns of modules that will be copied. 
@@ -739,19 +733,21 @@ function Copy-WinModule
         # The location where compatible modules should be copied to
         [Parameter()]
         [String]
-            $Destination = (join-path $PSHOME "Modules"),
-        
-        # Show what will be copied instead of copying the files
-        [Parameter()]
-        [Switch]
-            $WhatIf
+            $Destination = (join-path $PSHOME "Modules")
     )
 
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
+    [bool] $whatIfFlag  = $PSBoundParameters['WhatIf']
+    [bool] $confirmFlag = $PSBoundParameters['Confirm']
 
-    [PSSession] $session = Initialize-WinSession -Verbose:$verboseFlag -ComputerName $ComputerName `
-                                -ConfigurationName $ConfigurationName `
-                                -Credential $Credential -PassThru
+    $initializeWinSessionParameters = @{
+        Verbose           = $verboseFlag
+        ComputerName      = $ComputerName
+        ConfigurationName = $ConfigurationName
+        Credential        = $Credential
+        PassThru          = $true
+    }
+    [PSSession] $session = Initialize-WinSession @initializeWinSessionParameters
 
     $CopyOptions = @{}
     if ($ComputerName -ne "localhost" -and $ComputerName -ne ".")
@@ -772,16 +768,9 @@ function Copy-WinModule
                 Select-Object Name,ModuleBase
     }
 
-    $moduleHash = @{}
-    foreach ($n in $name)
-    {
-        foreach ($m in $modulesToCopy -like $n)
-        {
-            $moduleHash[$m.Name]
-        }
-    }
     Write-Verbose -Verbose:$verboseFlag "Copying modules to path '$Destination'"
 
+    $modulesToCopy = $modulesToCopy | Sort-Object -Unique -Property Name
     foreach ($m in $modulesToCopy)
     {
         # Skip modules that aren't on the named module list
@@ -791,9 +780,9 @@ function Copy-WinModule
         }
 
         $fullDestination = Join-Path $Destination $m.name
-        if (! (Test-Path $fullDestination))
+        if (-not (Test-Path $fullDestination))
         {
-            Copy-Item -WhatIf:$WhatIf -Verbose:$verboseFlag -Path $m.ModuleBase `
+            Copy-Item -WhatIf:$whatIfFlag -Verbose:$verboseFlag -Confirm:$confirmFlag -Path $m.ModuleBase `
                 -Destination $fullDestination -Recurse @CopyOptions
         }
         else
