@@ -64,6 +64,7 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         $results = Get-PnpDevice
         $results | Should -Not -BeNullOrEmpty
         $results | Should -BeOfType ([Microsoft.Management.Infrastructure.CimInstance])
+        $results[0].PSObject.TypeNames[0] | Should -BeExactly 'Microsoft.Management.Infrastructure.CimInstance#ROOT/cimv2/Win32_PnPEntity'
 
         # Clean up
         Get-Module PnpDevice | Remove-Module
@@ -109,12 +110,88 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         $tempDirToUse = Join-Path TestDrive: "tmp$(Get-Random)"
         New-Item -ItemType directory $tempDirToUse
 
+        # Invoke the command to copy the module
         Copy-WinModule PnpDevice -Destination $tempDirToUse
+
         # Ensure that the module directory exists
         Join-Path $tempDirToUse PnpDevice | Should -Exist
         # And the .psd1 file
-        Join-Path $tempDirToUse PnpDevice PnpDevice.psd1 | Should -Exist
+        $psd1File = Join-Path $tempDirToUse PnpDevice PnpDevice.psd1
+        $psd1File | Should -Exist
         # Ensure that only 1 module got copied
         (Get-Childitem $tempDirToUse).Count | Should -BeExactly 1
+
+        # Now verify that the local module can be loaded and used
+
+        # First make sure that the module is not already loaded (it shouldn't be)
+        Get-Module PnpDevice | Should -BeNullOrEmpty
+        # Load the module and verify the type
+        $info = Import-Module $psd1File -PassThru
+        $info | Should -Not -BeNullOrEmpty
+        $info.Name | Should -BeExactly "PnpDevice"
+        $info.ModuleType | Should -BeExactly "Manifest"
+
+        # Verify that the commands were imported as proxies
+        $cmd = Get-Command Get-PnpDevice
+        $cmd.CommandType | Should -BeExactly "Function"
+
+        # Make sure the command actually runs
+        $results = Get-PnpDevice
+        $results | Should -Not -BeNullOrEmpty
+        $results | Should -BeOfType ([Microsoft.Management.Infrastructure.CimInstance])
+        $results[0].PSObject.TypeNames[0] | Should -BeExactly 'Microsoft.Management.Infrastructure.CimInstance#ROOT/cimv2/Win32_PnPEntity'
+
+        # Finally remove the module from memory to clean up
+        Remove-Module PnpDevice
+    }
+
+    It "Copy-WinModule should copy the specified module to the user's module path by default" {
+
+        # Get the user's module folder path
+        $destination = [environment]::GetFolderPath([System.Environment+SpecialFolder]::MyDocuments),
+                            "PowerShell",
+                                "Modules"
+        $fullModulePath = Join-Path $destination PnpDevice
+
+        # Only run the test if the user's module directory exists but they
+        # haven't copied the PnpDevice module already.
+        if ((Test-Path $destination) -and -not (Test-Path $fullModulePath))
+        {
+            # Invoke the command to copy the module
+            Copy-WinModule PnpDevice
+
+            # Ensure that the module directory exists
+            $fullModulePath | Should -Exist
+            # And the .psd1 file
+            $psd1File = Join-Path $fullModulePath PnpDevice.psd1
+            $psd1File | Should -Exist
+            # Ensure that only 1 module got copied
+            (Get-Childitem $tempDirToUse).Count | Should -BeExactly 1
+
+            # Now verify that the local module can be loaded and used
+
+            # First make sure that the module is not already loaded (it shouldn't be)
+            Get-Module PnpDevice | Should -BeNullOrEmpty
+            # Load the module using just the module name and verify the type
+            $info = Import-Module PnpDevice -PassThru
+            $info | Should -Not -BeNullOrEmpty
+            $info.Name | Should -BeExactly "PnpDevice"
+            $info.ModuleType | Should -BeExactly "Manifest"
+
+            # Verify that the commands were imported as proxies
+            $cmd = Get-Command Get-PnpDevice
+            $cmd.CommandType | Should -BeExactly "Function"
+
+            # Make sure the command actually runs
+            $results = Get-PnpDevice
+            $results | Should -Not -BeNullOrEmpty
+            $results | Should -BeOfType ([Microsoft.Management.Infrastructure.CimInstance])
+            $results[0].PSObject.TypeNames[0] | Should -BeExactly 'Microsoft.Management.Infrastructure.CimInstance#ROOT/cimv2/Win32_PnPEntity'
+
+            # Finally remove the module from memory to clean up
+            Remove-Module PnpDevice
+            # And remove them module if we installed it
+            Remove-Item -Recurse $fullModulePath
+        }
     }
 }

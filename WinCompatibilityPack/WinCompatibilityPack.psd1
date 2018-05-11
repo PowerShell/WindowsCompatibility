@@ -31,7 +31,7 @@ Copyright = 'Copyright (c) Microsoft Corporation. All rights reserved'
 # Description of the functionality provided by this module
 Description = @'
 This module Provides compatibility utilities that allow PowerShell Core sessions to 
-invoke commands that are only available in Windows PowerShell. This utilities help you
+invoke commands that are only available in Windows PowerShell. These utilities help you
 to discover available modules, import those modules through proxies and then use the module
 commands much as if they were native to PowerShell Core.
 '@
@@ -103,7 +103,7 @@ PrivateData = @{
         Tags = @('Compatibility', 'Desktop', 'Core')
 
         # A URL to the license for this module.
-        # LicenseUri = ''
+        LicenseUri = 'https://opensource.org/licenses/MIT'
 
         # A URL to the main website for this project.
         ProjectUri = 'https://github.com/PowerShell/WindowsPowerShellCompatibilityPack'
@@ -112,7 +112,19 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        # ReleaseNotes = ''
+        ReleaseNotes = @'
+This is the first release of this module with the basic commands:
+    Initialize-WinSession
+    Add-WinFunction
+    Invoke-WinCommand
+    Get-WinModule
+    Import-WinModule
+    Compare-WinModule
+    Copy-WinModule
+These commands provide a set of tools allowing you to run Windows PowerShell
+commands from PowerShell Core (PowerShell 6). See the help for the
+indivdual commands for examples on how to use this functionality.
+'@
 
     } # End of PSData hashtable
 

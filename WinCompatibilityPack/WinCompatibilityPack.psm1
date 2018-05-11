@@ -183,19 +183,24 @@ function Initialize-WinSession
 
     if (-not $session)
     {
-        $SessionOpts = @{}
+        $newPSSessionParameters = @{
+            Verbose           = $verboseFlag
+            ComputerName      = $ComputerName
+            Name              = $script:sessionName
+            ConfigurationName = $configurationName
+            ErrorAction       = "Stop"
+        }
         if ($Credential)
         {
-            $SessionOpts.Credential = $Credential
+            $newPSSessionParameters.Credential = $Credential
         }
-        if ($ComputerName -eq "localhost" -or $ComputerName -eq (hostname))
+        if ($ComputerName -eq "localhost" -or $ComputerName -eq [environment]::MachineName)
         {
-            $SessionOpts.EnableNetworkAccess = $true
+            $newPSSessionParameters.EnableNetworkAccess = $true
         }
         Write-Verbose -Verbose:$verboseFlag "Creating a new compatibility session."
         ##BUGBUG need to deal with the case where there might be multiple sessions because someone hit ctrl-C
-        $session = New-PSSession -Verbose:$verboseFlag -Name $script:sessionName -ComputerName $ComputerName `
-                -ConfigurationName $configurationName @SessionOpts
+        $session = New-PSSession @newPSSessionParameters
     }
     else
     {
@@ -353,7 +358,7 @@ function Invoke-WinCommand
     [void] $PSBoundParameters.Remove('ArgumentList')
 
     # Make sure the session is initialized
-    $session = Initialize-WinSession @PSBoundParameters -PassThru
+    [PSSession] $session = Initialize-WinSession @PSBoundParameters -PassThru
 
     # And invoke the scriptblock in the session
     Invoke-Command -Session $session -ScriptBlock $ScriptBlock -ArgumentList $ArgumentList
@@ -422,19 +427,26 @@ function Get-WinModule
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
 
     Write-Verbose -Verbose:$verboseFlag 'Connecting to compatibility session.'
-    $s = Initialize-WinSession -ComputerName $ComputerName `
-        -ConfigurationName $ConfigurationName -Credential $Credential -PassThru
+    $initializeWinSessionParameters = @{ 
+        Verbose           = $verboseFlag
+        ComputerName      = $ComputerName
+        ConfigurationName = $ConfigurationName
+        Credential        = $Credential
+        PassThru          = $true
+    }
+    [PSSession] $session = Initialize-WinSession @initializeWinSessionParameters
     
     if ($name -ne '*')
     {
         Write-Verbose -Verbose:$verboseFlag "Getting the list of available modules matching '$name'."
     }
-    else {
+    else
+    {
         Write-Verbose -Verbose:$verboseFlag 'Getting the list of available modules.'
     }
 
     $propertiesToReturn = if ($Full) { '*' } else {'Name', 'Version', 'Description'}
-    Invoke-Command -Session $s  -ScriptBlock {
+    Invoke-Command -Session $session  -ScriptBlock {
         Get-Module -ListAvailable -Name $using:Name |
             Where-Object Name -notin $using:NeverImportList |
                 Select-Object $using:propertiesToReturn
@@ -544,19 +556,14 @@ function Import-WinModule
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
 
     Write-Verbose -Verbose:$verboseFlag "Connecting to compatibility session."
-    [PSSession] $session = Initialize-WinSession -Verbose:$verboseFlag `
-        -ComputerName $ComputerName -ConfigurationName $ConfigurationName `
-        -Credential $Credential -PassThru
-
-    $ImportOpts = @{}
-    if ($Prefix)
-    {
-        $ImportOpts.Prefix = $Prefix
+    $initializeWinSessionParameters = @{ 
+        Verbose           = $verboseFlag
+        ComputerName      = $ComputerName
+        ConfigurationName = $ConfigurationName
+        Credential        = $Credential
+        PassThru          = $true
     }
-    if ($PassThru)
-    {
-        $ImportOpts.PassThru = $PassThru
-    }
+    [PSSession] $session = Initialize-WinSession @initializeWinSessionParameters
 
     # Mapping wildcards to a regex
     $Exclude = ($Exclude -replace "\*",".*") -join "|"
@@ -577,20 +584,34 @@ function Import-WinModule
     }
     
     Write-Verbose -Verbose:$verboseFlag "Importing modules..."
+    $importModuleParameters = @{
+        Global              = $true
+        Force               = $Force 
+        Verbose             = $verboseFlag
+        PSSession           = $session
+        PassThru            = $PassThru
+        DisableNameChecking = $DisableNameChecking 
+    }
+    if ($Prefix)
+    {
+        $importModuleParameters.Prefix = $Prefix
+    }
+    if ($PassThru)
+    {
+        $importModuleParameters.PassThru = $PassThru
+    }
     if ($importNames)
     {
         # Extract the 'never clobber' modules from the list
         $noClobberNames = $importNames.where{ $_ -in $script:NeverClobberList }
-        $importNames = $importNames.where{ $_ -notin $script:NeverClobberList }
+        $importNames    = $importNames.where{ $_ -notin $script:NeverClobberList }
         if ($importNames)
         {
-            Import-Module -Global -Force:$Force -Verbose:$verboseFlag -PSSession $session -Name $ImportNames `
-                -DisableNameChecking:$DisableNameChecking -NoClobber:$NoClobber @ImportOpts
+            Import-Module  -Name $ImportNames -NoClobber:$NoClobber @importModuleParameters
         }
         if ($noClobberNames)
         {
-            Import-Module -Global -Force:$Force -Verbose:$verboseFlag -PSSession $session -Name $noClobberNames `
-                -DisableNameChecking:$DisableNameChecking -NoClobber @ImportOpts
+            Import-Module  -Name $noClobberNames -NoClobber @importModuleParameters
         }
     }
     else
@@ -655,9 +676,14 @@ function Compare-WinModule
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
 
     Write-Verbose -Verbose:$verboseFlag "Initializing compatibility session"
-    [PSSession] $session = Initialize-WinSession -Verbose:$verboseFlag -ComputerName $ComputerName `
-            -ConfigurationName $ConfigurationName `
-            -Credential $Credential -PassThru
+    $initializeWinSessionParameters = @{ 
+        Verbose           = $verboseFlag
+        ComputerName      = $ComputerName
+        ConfigurationName = $ConfigurationName
+        Credential        = $Credential
+        PassThru          = $true
+    }
+    [PSSession] $session = Initialize-WinSession @initializeWinSessionParameters
 
     Write-Verbose -Verbose:$verboseFlag "Getting local modules..."
     $LocalModule = (Get-Module -ListAvailable -Verbose:$false).Where{$_.Name -like $Name}
@@ -733,12 +759,34 @@ function Copy-WinModule
         # The location where compatible modules should be copied to
         [Parameter()]
         [String]
-            $Destination = (join-path $PSHOME "Modules")
+            $Destination
     )
 
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
     [bool] $whatIfFlag  = $PSBoundParameters['WhatIf']
     [bool] $confirmFlag = $PSBoundParameters['Confirm']
+
+    if (-not $Destination)
+    {
+        # If the user hasn't specified a destination, default to the user module directory
+        $parts =  [environment]::GetFolderPath([System.Environment+SpecialFolder]::MyDocuments),
+                    "PowerShell",
+                        "Modules"
+        $Destination = Join-Path @parts
+    }
+
+    # Resolve the path which also verifies that the path exists
+    $resolvedDestination = Resolve-Path $Destination -ErrorAction SilentlyContinue
+    if (-not $?)
+    {
+        throw "The destination path '$Destination' could not be resolved. Please ensure that the path exists and try the command again"
+    }
+    # Make sure it's a FileSystem location
+    if ($resolvedDestination.provider.ImplementingType -ne [Microsoft.PowerShell.Commands.FileSystemProvider] )
+    {
+        throw "Modules can only be installed to paths in the filesystem. Please choose a different location and try the command again"
+    }
+    $Destination = $resolvedDestination.Path
 
     $initializeWinSessionParameters = @{
         Verbose           = $verboseFlag
@@ -749,10 +797,15 @@ function Copy-WinModule
     }
     [PSSession] $session = Initialize-WinSession @initializeWinSessionParameters
 
-    $CopyOptions = @{}
+    $copyItemParameters = @{
+        WhatIf  = $whatIfFlag
+        Verbose = $verboseFlag
+        Confirm = $confirmFlag
+        Recurse = $true
+    }
     if ($ComputerName -ne "localhost" -and $ComputerName -ne ".")
     {
-        $CopyOptions.FromSession = $session
+        $copyItemParameters.FromSession = $session
     }
 
     Write-Verbose -Verbose:$verboseFlag "Searching for compatible modules..."
@@ -782,8 +835,7 @@ function Copy-WinModule
         $fullDestination = Join-Path $Destination $m.name
         if (-not (Test-Path $fullDestination))
         {
-            Copy-Item -WhatIf:$whatIfFlag -Verbose:$verboseFlag -Confirm:$confirmFlag -Path $m.ModuleBase `
-                -Destination $fullDestination -Recurse @CopyOptions
+            Copy-Item  -Path $m.ModuleBase -Destination $fullDestination @copyItemParameters
         }
         else
         {
