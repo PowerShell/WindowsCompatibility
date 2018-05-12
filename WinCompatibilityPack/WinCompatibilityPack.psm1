@@ -119,7 +119,7 @@ $DefaultComputerName = 'localhost'
 function Initialize-WinSession
 {
     [CmdletBinding()]
-    [Alias("iwins")]
+    [Alias("inwinsn")]
     [OutputType([System.Management.Automation.Runspaces.PSSession])]
     Param (
 
@@ -237,7 +237,7 @@ function Initialize-WinSession
 function Add-WinFunction
 {
     [CmdletBinding()]
-    [Alias("awinf")]
+    [Alias("awinfn")]
     [OutputType([void])]
     Param
     (
@@ -319,7 +319,7 @@ function Add-WinFunction
 function Invoke-WinCommand
 {
     [CmdletBinding()]
-    [Alias('iwinc')]
+    [Alias('iwincm')]
     [OutputType([PSObject])]
     Param
     (
@@ -334,7 +334,7 @@ function Invoke-WinCommand
         # (Defaults to 'localhost')
         [Parameter()]
         [String]
-        [Alias("Cn")]
+        [Alias("cn")]
             $ComputerName = $script:DefaultComputerName,
 
         # Specifies the configuration to connect to when creating the compatibility session
@@ -387,7 +387,7 @@ function Invoke-WinCommand
 function Get-WinModule
 {
     [CmdletBinding()]
-    [Alias("gwinm")]
+    [Alias("gwinmo")]
     [OutputType([PSObject])]
     Param
     (
@@ -490,7 +490,7 @@ function Get-WinModule
 function Import-WinModule
 {
     [CmdletBinding()]
-    [Alias("iWinm")]
+    [Alias("ipwinmo")]
     [OutputType([PSObject])]
     Param
     (
@@ -642,7 +642,7 @@ function Import-WinModule
 function Compare-WinModule
 {
     [CmdletBinding()]
-    [Alias("cwinm")]
+    [Alias("cwinmo")]
     [OutputType([PSObject])]
     Param
     (
@@ -726,7 +726,7 @@ function Compare-WinModule
 function Copy-WinModule
 {
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias("cpwinm")]
+    [Alias("cpwinmo")]
     [OutputType([void])]
     Param
     (
