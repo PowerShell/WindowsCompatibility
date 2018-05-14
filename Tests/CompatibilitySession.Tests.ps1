@@ -64,7 +64,7 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         $results = Get-PnpDevice
         $results | Should -Not -BeNullOrEmpty
         $results | Should -BeOfType ([Microsoft.Management.Infrastructure.CimInstance])
-        $results[0].PSObject.TypeNames[0] | Should -BeExactly 'Microsoft.Management.Infrastructure.CimInstance#ROOT/cimv2/Win32_PnPEntity'
+        $results[0].PSObject.TypeNames[0] | Should -Be 'Microsoft.Management.Infrastructure.CimInstance#ROOT/cimv2/Win32_PnPEntity'
 
         # Clean up
         Get-Module PnpDevice | Remove-Module
@@ -128,7 +128,7 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         # Now verify that the local module can be loaded and used
 
         # First make sure that the module is not already loaded (it shouldn't be)
-        Get-Module PnpDevice | Should -BeNullOrEmpty
+        Get-Module PnpDevice | Remove-Module -ErrorAction Ignore
         # Load the module and verify the type
         $info = Import-Module $psd1File -PassThru
         $info | Should -Not -BeNullOrEmpty
@@ -175,7 +175,7 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
             # Now verify that the local module can be loaded and used
 
             # First make sure that the module is not already loaded (it shouldn't be)
-            Get-Module PnpDevice | Should -BeNullOrEmpty
+            Get-Module PnpDevice | Remove-Module -ErrorAction Ignore
             # Load the module using just the module name and verify the type
             $info = Import-Module PnpDevice -PassThru
             $info | Should -Not -BeNullOrEmpty
