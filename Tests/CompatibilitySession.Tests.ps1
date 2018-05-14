@@ -77,11 +77,16 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
                 Remove-Module
         # Import the proxy module
         Import-WinModule  Microsoft.PowerShell.Management
+        # Verify PS Core native commands don't get overridden
         $cmd = Get-Command Get-ChildItem
         $cmd.Module.ModuleType | Should -BeExactly "Manifest"
+        # but the extra commands are imported
         $cmd2 = Get-Command Get-EventLog
         $cmd2.Module.ModuleType | Should -BeExactly "Script"
-        Get-EventLog -LogName Application -Newest 1 | Should -Not -BeNullOrEmpty
+        # and that these commands work
+        $ele = Get-EventLog -LogName Application -Newest 1
+        $ele | Should -Not -BeNullOrEmpty
+        $ele.PSObject.TypeNames -eq 'Deserialized.System.Diagnostics.EventLogEntry' | Should -Be Deserialized.System.Diagnostics.EventLogEntry
     }
 
     It "Add-WinFunction should define a function in the current session and return information from the compatibility session" {
@@ -102,7 +107,6 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         $pattern = 'Azure*'
         $modules = Compare-WinModule $pattern
         $modules | Should -Not -BeNullOrEmpty
-        # Verify that the deserialized object's typenames contains PSModuleInfo
         $modules[0].Name | Should -BeLike $pattern
     }
 
