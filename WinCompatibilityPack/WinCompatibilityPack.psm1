@@ -119,7 +119,6 @@ $DefaultComputerName = 'localhost'
 function Initialize-WinSession
 {
     [CmdletBinding()]
-    [Alias("inwinsn")]
     [OutputType([System.Management.Automation.Runspaces.PSSession])]
     Param (
 
@@ -237,7 +236,6 @@ function Initialize-WinSession
 function Add-WinFunction
 {
     [CmdletBinding()]
-    [Alias("awinfn")]
     [OutputType([void])]
     Param
     (
@@ -319,7 +317,6 @@ function Add-WinFunction
 function Invoke-WinCommand
 {
     [CmdletBinding()]
-    [Alias('iwincm')]
     [OutputType([PSObject])]
     Param
     (
@@ -387,7 +384,6 @@ function Invoke-WinCommand
 function Get-WinModule
 {
     [CmdletBinding()]
-    [Alias("gwinmo")]
     [OutputType([PSObject])]
     Param
     (
@@ -490,7 +486,6 @@ function Get-WinModule
 function Import-WinModule
 {
     [CmdletBinding()]
-    [Alias("ipwinmo")]
     [OutputType([PSObject])]
     Param
     (
@@ -642,7 +637,6 @@ function Import-WinModule
 function Compare-WinModule
 {
     [CmdletBinding()]
-    [Alias("cwinmo")]
     [OutputType([PSObject])]
     Param
     (
@@ -726,7 +720,6 @@ function Compare-WinModule
 function Copy-WinModule
 {
     [CmdletBinding(SupportsShouldProcess)]
-    [Alias("cpwinmo")]
     [OutputType([void])]
     Param
     (
