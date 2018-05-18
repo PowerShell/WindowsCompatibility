@@ -877,7 +877,7 @@ C:\PS> Get-Module -ListAvailable
 function Add-WindowsPSModulePath
 {
 
-    if (! $IsWindows)
+    if (-not $IsWindows)
     {
         throw "This cmdlet is only supported on Windows"
     }
