@@ -17,14 +17,7 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         @{command = 'Get-WinModule'},
         @{command = 'Import-WinModule'},
         @{command = 'Compare-WinModule'},
-        @{command = 'Copy-WinModule'},
-        @{command = 'awinfn'},
-        @{command = 'cpwinmo'},
-        @{command = 'cwinmo'},
-        @{command = 'gwinmo'},
-        @{command = 'ipwinmo'},
-        @{command = 'iwincm'},
-        @{command = 'inwinsn'}
+        @{command = 'Copy-WinModule'}
         ) {
             param($command)
             Get-Command $command | Should -Not -BeNullOrEmpty
