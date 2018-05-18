@@ -49,7 +49,28 @@ PowerShellVersion = '6.0'
 # RequiredModules = @()
 
 # Assemblies that must be loaded prior to importing this module
-# RequiredAssemblies = @()
+RequiredAssemblies = @(
+    'Microsoft.Win32.SystemEvents.dll'
+    'System.CodeDom.dll'
+    'System.Configuration.ConfigurationManager.dll'
+    'System.Data.DataSetExtensions.dll'
+    'System.Data.Odbc.dll'
+    'System.Diagnostics.EventLog.dll'
+    'System.Diagnostics.PerformanceCounter.dll'
+    'System.DirectoryServices.AccountManagement.dll'
+    'System.DirectoryServices.dll'
+    'System.DirectoryServices.Protocols.dll'
+    'System.Drawing.Common.dll'
+    'System.IO.Pipes.AccessControl.dll'
+    'System.IO.Ports.dll'
+    'System.Management.dll'
+    'System.Memory.dll'
+    'System.Runtime.Caching.dll'
+    'System.Runtime.CompilerServices.Unsafe.dll'
+    'System.Security.Cryptography.ProtectedData.dll'
+    'System.Security.Cryptography.Xml.dll'
+    'System.ServiceModel.Syndication.dll'
+)
 
 # Type files (.ps1xml) to be loaded when importing this module
 # TypesToProcess = @()

@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="2.0.0-rc1">
+
+    </PackageReference>
+    <PackageReference Include="Microsoft.PowerShell.SDK" Version="6.0.2">
+        <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <None Include="WinCompatibilityPack.psd1" CopyToOutputDirectory="Always" />
+    <None Include="WinCompatibilityPack.psm1" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+</Project>
