@@ -6,7 +6,7 @@
     <PackageReference Include="Microsoft.Windows.Compatibility" Version="2.0.0-rc1">
 
     </PackageReference>
-    <PackageReference Include="Microsoft.PowerShell.SDK" Version="6.0.2">
+    <PackageReference Include="PowerShellStandard.Library" Version="5.1.0-*">
         <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <None Include="WinCompatibilityPack.psd1" CopyToOutputDirectory="Always" />
