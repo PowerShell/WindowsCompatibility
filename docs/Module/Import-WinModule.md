@@ -13,7 +13,7 @@ Import a compatibility module.
 
 ## SYNTAX
 
-```none
+```
 Import-WinModule [[-Name] <String[]>] [-Exclude <String[]>] [-ComputerName <String>]
  [-ConfigurationName <String>] [-Prefix <String>] [-DisableNameChecking] [-NoClobber] [-Force]
  [-Credential <PSCredential>] [-PassThru] [<CommonParameters>]

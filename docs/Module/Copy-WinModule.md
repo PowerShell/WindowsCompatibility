@@ -13,7 +13,7 @@ Copy modules from the compatibility session that are directly usable in PowerShe
 
 ## SYNTAX
 
-```none
+```
 Copy-WinModule [[-Name] <String[]>] [-ComputerName <String>] [-ConfigurationName <String>]
  [-Credential <PSCredential>] [-Destination <String>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```

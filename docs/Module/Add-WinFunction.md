@@ -13,7 +13,7 @@ This command defines a global function that always runs in the compatibility ses
 
 ## SYNTAX
 
-```none
+```
 Add-WinFunction [-FunctionName] <String> [-ScriptBlock] <ScriptBlock> [-ComputerName <String>]
  [-ConfigurationName <String>] [-Credential <PSCredential>] [<CommonParameters>]
 ```
@@ -41,7 +41,7 @@ When invoked it will print a message then return the PSVersion table from the co
 
 Now call the function
 
-```none
+```
 PS C:\> myFunction Bill
 Hi Bill!
 Desktop

@@ -13,7 +13,7 @@ Get a list of the available modules from the compatibility session
 
 ## SYNTAX
 
-```none
+```
 Get-WinModule [[-Name] <String[]>] [-ComputerName <String>] [-ConfigurationName <String>]
  [-Credential <PSCredential>] [-Full] [<CommonParameters>]
 ```

@@ -13,7 +13,7 @@ Compare the set of modules for this version of PowerShell against those availabl
 
 ## SYNTAX
 
-```none
+```
 Compare-WinModule [[-Name] <String[]>] [-ComputerName <String>] [-ConfigurationName <String>]
  [-Credential <PSCredential>] [<CommonParameters>]
 ```

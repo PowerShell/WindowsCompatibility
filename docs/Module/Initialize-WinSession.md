@@ -13,7 +13,7 @@ Initialize the connection to the compatibility session.
 
 ## SYNTAX
 
-```none
+```
 Initialize-WinSession [[-ComputerName] <String>] [-ConfigurationName <String>] [-Credential <PSCredential>]
  [-PassThru] [<CommonParameters>]
 ```

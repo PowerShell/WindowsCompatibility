@@ -13,7 +13,7 @@ Invoke a ScriptBlock that runs in the compatibility runspace.
 
 ## SYNTAX
 
-```none
+```
 Invoke-WinCommand [-ScriptBlock] <ScriptBlock> [-ComputerName <String>] [-ConfigurationName <String>]
  [-Credential <PSCredential>] [-ArgumentList <Object[]>] [<CommonParameters>]
 ```
