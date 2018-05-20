@@ -135,13 +135,13 @@ This is the first release of this module with the basic commands:
     Copy-WinModule
 These commands provide a set of tools allowing you to run Windows PowerShell
 commands from PowerShell Core (PowerShell 6). See the help for the
-indivdual commands for examples on how to use this functionality.
+individual commands for examples on how to use this functionality.
 
-Additionall, the command `Add-WindowsPSModulePath` enables enumerating
+Additionally, the command `Add-WindowsPSModulePath` enables enumerating
 existing Windows PowerShell modules within PowerShell Core 6.
 
 The .Net Windows Compatibility Pack is included in this module exposing
-more .Net apis you can use with PowerShell.
+more .Net APIs you can use with PowerShell.
 '@
 
     } # End of PSData hashtable
