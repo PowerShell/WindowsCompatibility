@@ -14,7 +14,7 @@ Appends the existing Windows PowerShell PSModulePath to existing PSModulePath
 ## SYNTAX
 
 ```
-Add-WindowsPSModulePath
+Add-WindowsPSModulePath [<CommonParameters>]
 ```
 
 ## DESCRIPTION
