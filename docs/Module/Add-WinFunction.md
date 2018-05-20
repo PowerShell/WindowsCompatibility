@@ -34,18 +34,16 @@ This behavior can be overridden using the additional parameters on the command.
 
 ```powershell
 Add-WinFunction myFunction {param ($n) "Hi $n!"; $PSVersionTable.PSEdition }
+myFunction Bill
+```
+
+```
+Hi Bill!
+Desktop
 ```
 
 This example defines a function called 'myFunction' with 1 parameter.
 When invoked it will print a message then return the PSVersion table from the compatibility session.
-
-Now call the function
-
-```
-PS C:\> myFunction Bill
-Hi Bill!
-Desktop
-```
 
 ## PARAMETERS
 
