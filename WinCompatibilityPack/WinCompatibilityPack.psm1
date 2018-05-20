@@ -93,27 +93,6 @@ $DefaultConfigurationName = 'Microsoft.PowerShell'
 # Specifies the default name of the computer on which to create the compatibility session
 $DefaultComputerName = 'localhost'
 
-###########################################################################################
-<#
-.Synopsis
-   Initialize the connection to the compatibility session.
-.DESCRIPTION
-   Initialize the connection to the compatibility session. By default
-   the compatibility session will be created on the local host using the
-   'Microsoft.PowerShell' configuration. On subsequent calls, if a session
-   matching the current specification is found, it will be returned rather than
-   creating a new session. If a matching session is found, but can't be used, it
-   will be closed and a new session will be retrieved.
-
-   This command is called by the other commands in this module so
-   you will rarely call this command directly.
-.EXAMPLE
-    Initialize-WinSession
-    Initialize the default compatibility session
-.EXAMPLE
-    Initialize-WinSession -ComputerName localhost -ConfigurationName Microsoft.PowerShell
-    Initialize the compatibility session with a specific computer name and configuration
-#>
 function Initialize-WinSession
 {
     [CmdletBinding()]
@@ -210,27 +189,6 @@ function Initialize-WinSession
     }
 }
 
-###########################################################################################
-<#
-.Synopsis
-   This command defines a global function that always runs in the compatibility session.
-.DESCRIPTION
-    This command defines a global function that always runs in the compatibility session,
-    returning serialized data to the calling session. Parameters can be specified using
-    the 'param' statement but only positional parameters are supported.
-
-    By default, when executing, the current compatibility session is used,
-    or, in the case where there is no existing session, a new default session
-    will be created. This behaviour can be overridden using the
-    additional parameters on the command.
-.EXAMPLE
-    Add-WinFunction myFunction {param ($n) "Hi $n!"; $PSVersionTable.PSEdition }
-    This example defines a function called 'myFunction' with 1 parameter. When invoked it will print a message then return the PSVersion table
-    from the compatibility session. Now call the function
-    PS C:\> myFunction Bill
-    Hi Bill!
-    Desktop
-#>
 function Add-WinFunction
 {
     [CmdletBinding()]
@@ -283,35 +241,6 @@ function Add-WinFunction
     Set-item function:Global:$FunctionName $wrapper.GetNewClosure();
 }
 
-###########################################################################################
-<#
-.Synopsis
-   Invoke a scriptblock that runs in the compatibility runspace.
-.DESCRIPTION
-    This command takes a scriptblock and invokes it in the
-    compatibility session. Parameters can be passed using the -ArgumentList
-    parameter.
-
-    By default, when executing, the current compatibility session is used,
-    or, in the case where there is no existing session, a new default session
-    will be created. This behaviour can be overridden using the
-    additional parameters on the command.
-.EXAMPLE
-    Invoke-WinCommand {param ($name) "Hello $name, how are you?"; $PSVersionTable.PSVersion} Jeffrey
-    Hello Jeffrey, how are you?
-    Major  Minor  Build  Revision PSComputerName
-    -----  -----  -----  -------- --------------
-    5      1      17134  1        localhost
-
-    In this example, we're invoking a scriptblock with 1 parameter in the compatibility
-    session. This scriptblock will simply print a message and then return
-    the version number of the compatibility session.
-.EXAMPLE
-    Invoke-WinCommand {Get-EventLog -Log Application -New 10 }
-
-    This examples invokes Get-EventLog in the compatibility session,
-    returning the 10 newest events in the application log.
-#>
 function Invoke-WinCommand
 {
     [CmdletBinding()]
@@ -359,26 +288,6 @@ function Invoke-WinCommand
     Invoke-Command -Session $session -ScriptBlock $ScriptBlock -ArgumentList $ArgumentList
 }
 
-###########################################################################################
-<#
-.Synopsis
-   Get a list of the available modules from the compatibility session
-.DESCRIPTION
-    Get a list of the available modules from the compatibility session.
-
-    By default, when executing, the current compatibility session is used,
-    or, in the case where there is no existing session, a new default session
-    will be created. This behaviour can be overridden using the
-    additional parameters on this command.
-.EXAMPLE
-    Get-WinModule *PNP*
-    Name      Version Description
-    ----      ------- -----------
-    PnpDevice 1.0.0.0
-
-    This example looks for modules in the compatibility session with the string 'PNP'
-    in their name.
-#>
 function Get-WinModule
 {
     [CmdletBinding()]
@@ -448,39 +357,6 @@ function Get-WinModule
         Sort-Object Name
 }
 
-###########################################################################################
-<#
-.Synopsis
-   Import a compatibility module.
-.DESCRIPTION
-    This command allows you to import proxy modules from a local or remote
-    session. These proxy modules will allow you to invoke cmdlets that are
-    not directly supported in this version of PowerShell. There are commands in
-    the Windows PowerShell core modules that don't exist natively in PowerShell Core.
-    If these modules are imported, proxies will only be created for the missing commands.
-    Commands that already exist in PowerShell core will not be overridden.
-
-    By default, when executing, the current compatibility session is used,
-    or, in the case where there is no existing session, a new default session
-    will be created. This behaviour can be overridden using the
-    additional parameters on the command.
-.EXAMPLE
-    Import-WinModule PnpDevice; Get-Command -Module PnpDevice
-
-    This example imports the 'PnpDevice' module.
-.EXAMPLE
-    Import-WinModule Microsoft.PowerShell.Management; Get-Command Get-EventLog
-
-    This example imports one of the core Windows PowerShell modules
-    containing commands not natively available in PowerShell Core such
-    as 'Get-EventLog'. Only commands not already present in PowerShell Core
-    will be imported.
-.EXAMPLE
-    Import-WinModule PnpDevice -Verbose -Force
-
-    This example forces a reload of the module 'PnpDevice' with
-    verbose output turned on.
-#>
 function Import-WinModule
 {
     [CmdletBinding()]
@@ -613,25 +489,6 @@ function Import-WinModule
     }
 }
 
-###########################################################################################
-<#
-.Synopsis
-    Compare the set of modules for this version of PowerShell
-    against those available in the comptibility session.
-.DESCRIPTION
-    Compare the set of modules for this version of PowerShell
-    against those available in the comptibility session.
-.EXAMPLE
-    Compare-WinModule
-
-    This will return a list of all of the modules available in the compatibility
-    session that are not currently available in the PowerShell Core environment
-.EXAMPLE
-    Compare-WinModule A*
-
-    This will return a list of all of the compatibility session modules matching
-    the wildcard pattern 'A*'
-#>
 function Compare-WinModule
 {
     [CmdletBinding()]
@@ -693,28 +550,6 @@ function Compare-WinModule
         Where-Object SideIndicator -eq "=>"
 }
 
-###########################################################################################
-<#
-.Synopsis
-   Copy modules from the compatibility session that are directly usable in PowerShell Core.
-.DESCRIPTION
-   Copy modules from the compatibility session that are directly usable in PowerShell Core.
-   By default, these modules will be copied to $PSHome/Modules. This can be overridden using
-   the -Destination parameter. Once these modules have been copied, they will be available
-   just like the other native modules for PowerShell Core.
-
-   Note that if there already is a module in the destination corresponding to the module
-   to be copied's name, it will not be copied.
-.EXAMPLE
-    Copy-WinModule hyper-v -WhatIf -Verbose
-
-    Run the copy command with -WhatIf to see what would be copied to $PSHome/Modules.
-    Also show Verose information.
-.EXAMPLE
-    PS C:\> Copy-WinModule hyper-v -Destination ~/Documents/PowerShell/Modules
-
-    Copy the specified module to your user module directory.
-#>
 function Copy-WinModule
 {
     [CmdletBinding(SupportsShouldProcess)]
@@ -834,36 +669,6 @@ function Copy-WinModule
         }
     }
 }
-
-###########################################################################################
-<#
-.SYNOPSIS
-
-Appends the existing Windows PowerShell PSModulePath to existing PSModulePath
-
-.DESCRIPTION
-
-If the current PSModulePath does not contain the Windows PowerShell PSModulePath, it will
-be appended to the end.
-
-.INPUTS
-
-None.
-
-.OUTPUTS
-
-None.
-
-.EXAMPLE
-
-C:\PS> Add-WindowsPSModulePath
-C:\PS> Import-Module Hyper-V
-
-.EXAMPLE
-
-C:\PS> Add-WindowsPSModulePath
-C:\PS> Get-Module -ListAvailable
-#>
 
 function Add-WindowsPSModulePath
 {
