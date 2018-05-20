@@ -1,6 +1,7 @@
 # Windows PowerShell Compatibility Pack
 
 This module provides PowerShell Core 6 compatibility with existing Windows PowerShell scripts and modules by:
+
 - Adding more .Net Framework classes via the [Windows Compatibility Pack for .NET Core](https://blogs.msdn.microsoft.com/dotnet/2017/11/16/announcing-the-windows-compatibility-pack-for-net-core/)
 - Enable adding the Windows PowerShell PSModulePath
   - Note that some Windows PowerShell modules (like CDXML based) will work fine with PowerShell Core 6, but others may not be fully compatible
