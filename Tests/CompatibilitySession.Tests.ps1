@@ -4,12 +4,14 @@
 using namespace System.Management.Automation
 using namespace System.Management.Automation.Runspaces
 
+$scriptPath = Split-Path $MyInvocation.MyCommand.Path -Parent
+
 Describe "Test the Windows PowerShell Compatibility Session functions" {
 
     BeforeAll {
-        Import-Module -Force ..\WinCompatibilityPack\WinCompatibilityPack.psd1
+        Import-Module -Force "$scriptPath\..\WinCompatibilityPack\bin\release\netstandard2.0\publish\WinCompatibilityPack.psd1"
     }
-    
+
     It "Make sure the <command> command exists" -TestCases @(
         @{command = 'Initialize-WinSession'},
         @{command = 'Add-WinFunction'},
@@ -29,7 +31,7 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
 
     It "Multiple calls to Initialize-WinSession shouild return the same session" {
         $first = Initialize-WinSession -PassThru
-        $second = Initialize-WinSession -PassThru 
+        $second = Initialize-WinSession -PassThru
         $first | Should -Be $second
     }
 

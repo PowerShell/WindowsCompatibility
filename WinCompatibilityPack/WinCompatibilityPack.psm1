@@ -2,8 +2,6 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 
-#requires -Version 6
-
 using namespace System.Management.Automation.
 using namespace System.Management.Automation.Runspaces
 
@@ -22,7 +20,7 @@ $NeverImportList = @(
 
 ###########################################################################################
 # The following is a list of modules native to PowerShell Core that don't have all of
-# the functionality of Windows PowerShell 5.1 versions. These modules can be imported but 
+# the functionality of Windows PowerShell 5.1 versions. These modules can be imported but
 # will not overwrite any existing PowerShell Core commands
 $NeverClobberList = @(
     "Microsoft.PowerShell.Management",
@@ -108,7 +106,7 @@ $DefaultComputerName = 'localhost'
    will be closed and a new session will be retrieved.
 
    This command is called by the other commands in this module so
-   you will rarely call this command directly. 
+   you will rarely call this command directly.
 .EXAMPLE
     Initialize-WinSession
     Initialize the default compatibility session
@@ -290,7 +288,7 @@ function Add-WinFunction
 .Synopsis
    Invoke a scriptblock that runs in the compatibility runspace.
 .DESCRIPTION
-    This command takes a scriptblock and invokes it in the 
+    This command takes a scriptblock and invokes it in the
     compatibility session. Parameters can be passed using the -ArgumentList
     parameter.
 
@@ -306,7 +304,7 @@ function Add-WinFunction
     5      1      17134  1        localhost
 
     In this example, we're invoking a scriptblock with 1 parameter in the compatibility
-    session. This scriptblock will simply print a message and then return 
+    session. This scriptblock will simply print a message and then return
     the version number of the compatibility session.
 .EXAMPLE
     Invoke-WinCommand {Get-EventLog -Log Application -New 10 }
@@ -344,7 +342,7 @@ function Invoke-WinCommand
         [Parameter()]
         [PSCredential]
             $Credential,
-        
+
         # Arguments to pass to the scriptblock
         [Parameter(ValueFromRemainingArguments)]
         [object[]]
@@ -378,7 +376,7 @@ function Invoke-WinCommand
     ----      ------- -----------
     PnpDevice 1.0.0.0
 
-    This example looks for modules in the compatibility session with the string 'PNP' 
+    This example looks for modules in the compatibility session with the string 'PNP'
     in their name.
 #>
 function Get-WinModule
@@ -411,10 +409,10 @@ function Get-WinModule
         [Parameter()]
         [PSCredential]
             $Credential,
-        
+
         # If specified, the complete deserialized module object
         # will be returned instead of the abbreviated form returned
-        # by default. 
+        # by default.
         [Parameter()]
         [Switch]
             $Full
@@ -423,7 +421,7 @@ function Get-WinModule
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
 
     Write-Verbose -Verbose:$verboseFlag 'Connecting to compatibility session.'
-    $initializeWinSessionParameters = @{ 
+    $initializeWinSessionParameters = @{
         Verbose           = $verboseFlag
         ComputerName      = $ComputerName
         ConfigurationName = $ConfigurationName
@@ -431,7 +429,7 @@ function Get-WinModule
         PassThru          = $true
     }
     [PSSession] $session = Initialize-WinSession @initializeWinSessionParameters
-    
+
     if ($name -ne '*')
     {
         Write-Verbose -Verbose:$verboseFlag "Getting the list of available modules matching '$name'."
@@ -540,7 +538,7 @@ function Import-WinModule
         [Parameter()]
         [PSCredential]
             $Credential,
-        
+
         # If present, the ModuleInfo objects will be written to the output pipe
         # as deserialized (PSObject) objects
         [Parameter()]
@@ -551,7 +549,7 @@ function Import-WinModule
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
 
     Write-Verbose -Verbose:$verboseFlag "Connecting to compatibility session."
-    $initializeWinSessionParameters = @{ 
+    $initializeWinSessionParameters = @{
         Verbose           = $verboseFlag
         ComputerName      = $ComputerName
         ConfigurationName = $ConfigurationName
@@ -567,25 +565,25 @@ function Import-WinModule
     $importNames = Invoke-Command -Session $session {
         # Running on the Remote Machine
         $m = (Get-Module -ListAvailable -Name $using:Name).
-                Where{ $_.Name -notin $using:NeverImportList } 
-        
+                Where{ $_.Name -notin $using:NeverImportList }
+
         # These can use wildcards e.g. Az*,x* will probably be common
         if ($using:Exclude)
-        { 
-            $m = $m.Where{ $_.Name -NotMatch $using:Exclude } 
+        {
+            $m = $m.Where{ $_.Name -NotMatch $using:Exclude }
         }
 
         $m.Name | Select-Object -Unique
     }
-    
+
     Write-Verbose -Verbose:$verboseFlag "Importing modules..."
     $importModuleParameters = @{
         Global              = $true
-        Force               = $Force 
+        Force               = $Force
         Verbose             = $verboseFlag
         PSSession           = $session
         PassThru            = $PassThru
-        DisableNameChecking = $DisableNameChecking 
+        DisableNameChecking = $DisableNameChecking
     }
     if ($Prefix)
     {
@@ -640,7 +638,7 @@ function Compare-WinModule
     [OutputType([PSObject])]
     Param
     (
-        # Specifies the names or name patterns of for the modules to compare. 
+        # Specifies the names or name patterns of for the modules to compare.
         # Wildcard characters are permitted.
         [Parameter(Position=0)]
         [String[]]
@@ -670,7 +668,7 @@ function Compare-WinModule
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
 
     Write-Verbose -Verbose:$verboseFlag "Initializing compatibility session"
-    $initializeWinSessionParameters = @{ 
+    $initializeWinSessionParameters = @{
         Verbose           = $verboseFlag
         ComputerName      = $ComputerName
         ConfigurationName = $ConfigurationName
@@ -690,7 +688,7 @@ function Compare-WinModule
             Where{$_.Name -notin $using:NeverImportList -and $_.Name -like $using:Name} |
                 Select-Object Name, Version })
 
-    Write-Verbose -Verbose:$verboseFlag "Comparing module set..."     
+    Write-Verbose -Verbose:$verboseFlag "Comparing module set..."
     Compare-Object $LocalModule $RemoteModule -Property Name,Version |
         Where-Object SideIndicator -eq "=>"
 }
@@ -706,7 +704,7 @@ function Compare-WinModule
    just like the other native modules for PowerShell Core.
 
    Note that if there already is a module in the destination corresponding to the module
-   to be copied's name, it will not be copied. 
+   to be copied's name, it will not be copied.
 .EXAMPLE
     Copy-WinModule hyper-v -WhatIf -Verbose
 
@@ -723,7 +721,7 @@ function Copy-WinModule
     [OutputType([void])]
     Param
     (
-        # Specifies names or name patterns of modules that will be copied. 
+        # Specifies names or name patterns of modules that will be copied.
         # Wildcard characters are permitted.
         [Parameter(Mandatory=$false,Position=0)]
         [String[]]
@@ -748,7 +746,7 @@ function Copy-WinModule
         [Parameter()]
         [PSCredential]
             $Credential,
-        
+
         # The location where compatible modules should be copied to
         [Parameter()]
         [String]
@@ -870,9 +868,14 @@ C:\PS> Get-Module -ListAvailable
 function Add-WindowsPSModulePath
 {
 
-    if (-not $IsWindows)
+    if ($PSVersionTable.PSEdition -eq 'Core' -and -not $IsWindows)
     {
         throw "This cmdlet is only supported on Windows"
+    }
+
+    if ($PSVersionTable.PSEdition -eq 'Desktop')
+    {
+        return
     }
 
     $WindowsPSModulePath = [System.Environment]::GetEnvironmentVariable("psmodulepath", [System.EnvironmentVariableTarget]::Machine)

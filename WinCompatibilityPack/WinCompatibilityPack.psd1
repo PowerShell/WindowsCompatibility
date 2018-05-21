@@ -14,7 +14,7 @@ RootModule = 'WinCompatibilityPack.psm1'
 ModuleVersion = '0.0.1'
 
 # Supported PSEditions
-CompatiblePSEditions = @('Core')
+CompatiblePSEditions = @('Desktop','Core')
 
 # ID used to uniquely identify this module
 GUID = '9d427bc5-2ae1-4806-b9d1-2ae62461767e'
@@ -30,56 +30,63 @@ Copyright = 'Copyright (c) Microsoft Corporation. All rights reserved'
 
 # Description of the functionality provided by this module
 Description = @'
-This module Provides compatibility utilities that allow PowerShell Core sessions to 
+This module Provides compatibility utilities that allow PowerShell Core sessions to
 invoke commands that are only available in Windows PowerShell. These utilities help you
 to discover available modules, import those modules through proxies and then use the module
 commands much as if they were native to PowerShell Core.
 '@
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '6.0'
-
-# Minimum version of Microsoft .NET Framework required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
-# DotNetFrameworkVersion = ''
-
-# Minimum version of the common language runtime (CLR) required by this module. This prerequisite is valid for the PowerShell Desktop edition only.
-# CLRVersion = ''
-
-# Modules that must be imported into the global environment prior to importing this module
-# RequiredModules = @()
+PowerShellVersion = '5.1'
 
 # Assemblies that must be loaded prior to importing this module
 RequiredAssemblies = @(
+    'Microsoft.Win32.Registry.AccessControl.dll'
+    'Microsoft.Win32.Registry.dll'
     'Microsoft.Win32.SystemEvents.dll'
+    'System.Buffers.dll'
     'System.CodeDom.dll'
+    'System.ComponentModel.Composition.dll'
     'System.Configuration.ConfigurationManager.dll'
     'System.Data.DataSetExtensions.dll'
     'System.Data.Odbc.dll'
+    'System.Data.SqlClient.dll'
+    'System.Diagnostics.DiagnosticSource.dll'
     'System.Diagnostics.EventLog.dll'
     'System.Diagnostics.PerformanceCounter.dll'
     'System.DirectoryServices.AccountManagement.dll'
     'System.DirectoryServices.dll'
     'System.DirectoryServices.Protocols.dll'
     'System.Drawing.Common.dll'
+    'System.IO.FileSystem.AccessControl.dll'
+    'System.IO.Packaging.dll'
     'System.IO.Pipes.AccessControl.dll'
     'System.IO.Ports.dll'
     'System.Management.dll'
     'System.Memory.dll'
+    'System.Net.Http.WinHttpHandler.dll'
+    'System.Numerics.Vectors.dll'
+    'System.Reflection.DispatchProxy.dll'
     'System.Runtime.Caching.dll'
     'System.Runtime.CompilerServices.Unsafe.dll'
+    'System.Security.AccessControl.dll'
+    'System.Security.Cryptography.Cng.dll'
+    'System.Security.Cryptography.Pkcs.dll'
     'System.Security.Cryptography.ProtectedData.dll'
     'System.Security.Cryptography.Xml.dll'
+    'System.Security.Permissions.dll'
+    'System.Security.Principal.Windows.dll'
+    'System.ServiceModel.dll'
+    'System.ServiceModel.Duplex.dll'
+    'System.ServiceModel.Http.dll'
+    'System.ServiceModel.NetTcp.dll'
+    'System.ServiceModel.Primitives.dll'
+    'System.ServiceModel.Security.dll'
     'System.ServiceModel.Syndication.dll'
+    'System.ServiceProcess.ServiceController.dll'
+    'System.Text.Encoding.CodePages.dll'
+    'System.Threading.AccessControl.dll'
 )
-
-# Type files (.ps1xml) to be loaded when importing this module
-# TypesToProcess = @()
-
-# Format files (.ps1xml) to be loaded when importing this module
-# FormatsToProcess = @()
-
-# Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-# NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = @(
@@ -99,12 +106,6 @@ CmdletsToExport = @()
 # Variables to export from this module
 VariablesToExport = @()
 
-# List of all modules packaged with this module
-# ModuleList = @()
-
-# List of all files packaged with this module
-# FileList = @()
-
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{
 
@@ -122,7 +123,7 @@ PrivateData = @{
         # A URL to an icon representing this module.
         # IconUri = ''
 
-        # ReleaseNotes of this module
+        # Release Notes of this module
         ReleaseNotes = @'
 This is the first release of this module with the basic commands:
     Initialize-WinSession
@@ -134,7 +135,13 @@ This is the first release of this module with the basic commands:
     Copy-WinModule
 These commands provide a set of tools allowing you to run Windows PowerShell
 commands from PowerShell Core (PowerShell 6). See the help for the
-indivdual commands for examples on how to use this functionality.
+individual commands for examples on how to use this functionality.
+
+Additionally, the command `Add-WindowsPSModulePath` enables enumerating
+existing Windows PowerShell modules within PowerShell Core 6.
+
+The .Net Windows Compatibility Pack is included in this module exposing
+more .Net APIs you can use with PowerShell.
 '@
 
     } # End of PSData hashtable
@@ -143,8 +150,5 @@ indivdual commands for examples on how to use this functionality.
 
 # HelpInfo URI of this module
 # HelpInfoURI = ''
-
-# Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
-# DefaultCommandPrefix = ''
 
 }
