@@ -15,7 +15,14 @@ $NeverImportList = @(
     "PowerShellGet",
     "Microsoft.PowerShell.Archive",
     "Microsoft.PowerShell.Host",
-    "WinCompatibilityPack"
+    "WinCompatibilityPack",
+    # The following modules contain useful additional commands but importing them
+    # as script modules (along with the original module) breaks file completion
+    # so until we have a way to import them with a different module name, they're blocked
+    "Microsoft.PowerShell.Management",
+    "Microsoft.PowerShell.Utility",
+    "Microsoft.PowerShell.Security",
+    "Microsoft.PowerShell.Diagnostics"
 )
 
 ###########################################################################################
@@ -23,10 +30,12 @@ $NeverImportList = @(
 # the functionality of Windows PowerShell 5.1 versions. These modules can be imported but
 # will not overwrite any existing PowerShell Core commands
 $NeverClobberList = @(
+    <# Until there is a mechanism for importing a module with a different name, these modules are blocked
     "Microsoft.PowerShell.Management",
     "Microsoft.PowerShell.Utility",
     "Microsoft.PowerShell.Security",
     "Microsoft.PowerShell.Diagnostics"
+    #>
 )
 
 ###########################################################################################
@@ -468,13 +477,6 @@ function Get-WinModule
     Import-WinModule PnpDevice; Get-Command -Module PnpDevice
 
     This example imports the 'PnpDevice' module.
-.EXAMPLE
-    Import-WinModule Microsoft.PowerShell.Management; Get-Command Get-EventLog
-
-    This example imports one of the core Windows PowerShell modules
-    containing commands not natively available in PowerShell Core such
-    as 'Get-EventLog'. Only commands not already present in PowerShell Core
-    will be imported.
 .EXAMPLE
     Import-WinModule PnpDevice -Verbose -Force
 

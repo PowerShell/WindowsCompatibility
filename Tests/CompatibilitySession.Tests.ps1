@@ -65,6 +65,9 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         Get-Module PnpDevice | Remove-Module
     }
 
+    <##################################
+     # Disabled until we have a way to import modules with a different name
+
     It "Import-WinModule Microsoft.PowerShell.Management should import new commands but not overwrite existing ones" {
         # Remove the proxy module if present
         Get-Module Microsoft.PowerShell.Management |
@@ -83,7 +86,7 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         $ele | Should -Not -BeNullOrEmpty
         $ele.PSObject.TypeNames -eq 'Deserialized.System.Diagnostics.EventLogEntry' | Should -Be Deserialized.System.Diagnostics.EventLogEntry
     }
-
+#############################################>
     It "Add-WinFunction should define a function in the current session and return information from the compatibility session" {
         Remove-Item -ErrorAction Ignore function:myFunction
         Add-WinFunction myFunction {param ($n) "Hi $n!"; $PSVersionTable.PSEdition }
