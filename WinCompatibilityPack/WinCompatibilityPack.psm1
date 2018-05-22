@@ -7,6 +7,32 @@ using namespace System.Management.Automation.Runspaces
 
 Set-StrictMode -Version latest
 
+#region .Net Windows Compatibility Pack assemblies
+
+$runtimePath = ""
+if ($PSVersionTable.PSEdition -eq 'Desktop')
+{
+    $runtimePath = "net472"
+}
+elseif ($PSVersionTable.PSEdition -eq 'Core')
+{
+    $runtimePath = "netcoreapp20"
+}
+else
+{
+    throw "Only PSEdition 'Desktop' and 'Core' is supported"
+}
+
+$currentPath = Split-Path $MyInvocation.MyCommand.Path -Parent
+$runtimePath = Join-Path -Path $currentPath -ChildPath $runtimePath
+
+foreach ($assembly in (Get-ChildItem -Path $runtimePath))
+{
+    Add-Type -Path $assembly.FullName
+}
+
+#region .Net Windows Compatibility Pack assemblies
+
 ###########################################################################################
 # A list of modules native to PowerShell Core that should never be imported
 $NeverImportList = @(
