@@ -7,31 +7,12 @@ using namespace System.Management.Automation.Runspaces
 
 Set-StrictMode -Version latest
 
-#region .Net Windows Compatibility Pack assemblies
-
-$runtimePath = ""
-if ($PSVersionTable.PSEdition -eq 'Desktop')
+# PSCore 6.0.x has older versions of assemblies from WCP that are not compatible
+if ($PSVersionTable.PSEdition -eq 'Core' -and $PSVersionTable.PSVersion.Major -eq 6 -and
+    $PSVersionTable.PSVersion.Minor -eq 0)
 {
-    $runtimePath = "net472"
+    throw "This module is not compatible with PSCore 6.0.x, please upgrade to PSCore 6.1 or newer"
 }
-elseif ($PSVersionTable.PSEdition -eq 'Core')
-{
-    $runtimePath = "netcoreapp20"
-}
-else
-{
-    throw "Only PSEdition 'Desktop' and 'Core' is supported"
-}
-
-$currentPath = Split-Path $MyInvocation.MyCommand.Path -Parent
-$runtimePath = Join-Path -Path $currentPath -ChildPath $runtimePath
-
-foreach ($assembly in (Get-ChildItem -Path $runtimePath))
-{
-    Add-Type -Path $assembly.FullName
-}
-
-#region .Net Windows Compatibility Pack assemblies
 
 ###########################################################################################
 # A list of modules native to PowerShell Core that should never be imported

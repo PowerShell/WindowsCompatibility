@@ -6,40 +6,75 @@
 #
 
 @{
-
-# Script module or binary module file associated with this manifest.
 RootModule = 'WinCompatibilityPack.psm1'
-
-# Version number of this module.
 ModuleVersion = '0.0.1'
-
-# Supported PSEditions
 CompatiblePSEditions = @('Desktop','Core')
-
-# ID used to uniquely identify this module
 GUID = '9d427bc5-2ae1-4806-b9d1-2ae62461767e'
-
-# Author of this module
 Author = 'PowerShell'
-
-# Company or vendor of this module
 CompanyName = 'Microsoft Corporation'
-
-# Copyright statement for this module
 Copyright = 'Copyright (c) Microsoft Corporation. All rights reserved'
-
-# Description of the functionality provided by this module
 Description = @'
 This module Provides compatibility utilities that allow PowerShell Core sessions to
 invoke commands that are only available in Windows PowerShell. These utilities help you
 to discover available modules, import those modules through proxies and then use the module
 commands much as if they were native to PowerShell Core.
 '@
-
-# Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '5.1'
-
-# Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
+RequiredAssemblies = if($PSEdition -eq 'Core')
+{
+    'netcoreapp20\Microsoft.Win32.SystemEvents.dll',
+    'netcoreapp20\System.CodeDom.dll',
+    'netcoreapp20\System.Configuration.ConfigurationManager.dll',
+    'netcoreapp20\System.Data.DataSetExtensions.dll',
+    'netcoreapp20\System.Data.Odbc.dll',
+    'netcoreapp20\System.Diagnostics.EventLog.dll',
+    'netcoreapp20\System.Diagnostics.PerformanceCounter.dll',
+    'netcoreapp20\System.DirectoryServices.AccountManagement.dll',
+    'netcoreapp20\System.DirectoryServices.dll',
+    'netcoreapp20\System.DirectoryServices.Protocols.dll',
+    'netcoreapp20\System.Drawing.Common.dll',
+    'netcoreapp20\System.IO.Pipes.AccessControl.dll',
+    'netcoreapp20\System.IO.Ports.dll',
+    'netcoreapp20\System.Management.dll',
+    'netcoreapp20\System.Runtime.Caching.dll',
+    'netcoreapp20\System.Security.Cryptography.ProtectedData.dll',
+    'netcoreapp20\System.Security.Cryptography.Xml.dll',
+    'netcoreapp20\System.ServiceModel.Syndication.dll'
+}
+else
+{
+    'net472\Microsoft.Win32.Registry.AccessControl.dll',
+    'net472\Microsoft.Win32.Registry.dll',
+    'net472\Microsoft.Win32.SystemEvents.dll',
+    'net472\System.CodeDom.dll',
+    'net472\System.Configuration.ConfigurationManager.dll',
+    'net472\System.Data.Odbc.dll',
+    'net472\System.Data.SqlClient.dll',
+    'net472\System.Diagnostics.EventLog.dll',
+    'net472\System.Diagnostics.PerformanceCounter.dll',
+    'net472\System.Drawing.Common.dll',
+    'net472\System.IO.FileSystem.AccessControl.dll',
+    'net472\System.IO.Packaging.dll',
+    'net472\System.IO.Pipes.AccessControl.dll',
+    'net472\System.IO.Ports.dll',
+    'net472\System.Management.Automation.dll',
+    'net472\System.Runtime.CompilerServices.Unsafe.dll',
+    'net472\System.Security.AccessControl.dll',
+    'net472\System.Security.Cryptography.Cng.dll',
+    'net472\System.Security.Cryptography.Pkcs.dll',
+    'net472\System.Security.Cryptography.ProtectedData.dll',
+    'net472\System.Security.Cryptography.Xml.dll',
+    'net472\System.Security.Permissions.dll',
+    'net472\System.Security.Principal.Windows.dll',
+    'net472\System.ServiceModel.Duplex.dll',
+    'net472\System.ServiceModel.Http.dll',
+    'net472\System.ServiceModel.NetTcp.dll',
+    'net472\System.ServiceModel.Primitives.dll',
+    'net472\System.ServiceModel.Syndication.dll',
+    'net472\System.ServiceProcess.ServiceController.dll',
+    'net472\System.Text.Encoding.CodePages.dll',
+    'net472\System.Threading.AccessControl.dll'
+}
 FunctionsToExport = @(
     'Initialize-WinSession',
     'Add-WinFunction',
@@ -50,31 +85,11 @@ FunctionsToExport = @(
     'Copy-WinModule',
     'Add-WindowsPSModulePath'
 )
-
-# Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
-CmdletsToExport = @()
-
-# Variables to export from this module
-VariablesToExport = @()
-
-# Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{
-
     PSData = @{
-
-        # Tags applied to this module. These help with module discovery in online galleries.
         Tags = @('Compatibility', 'Desktop', 'Core')
-
-        # A URL to the license for this module.
         LicenseUri = 'https://opensource.org/licenses/MIT'
-
-        # A URL to the main website for this project.
         ProjectUri = 'https://github.com/PowerShell/WindowsPowerShellCompatibilityPack'
-
-        # A URL to an icon representing this module.
-        # IconUri = ''
-
-        # Release Notes of this module
         ReleaseNotes = @'
 This is the first release of this module with the basic commands:
     Initialize-WinSession
@@ -96,10 +111,6 @@ more .Net APIs you can use with PowerShell.
 '@
 
     } # End of PSData hashtable
-
 } # End of PrivateData hashtable
-
-# HelpInfo URI of this module
 # HelpInfoURI = ''
-
 }

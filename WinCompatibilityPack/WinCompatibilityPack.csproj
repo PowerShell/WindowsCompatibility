@@ -9,7 +9,5 @@
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.0-*">
         <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <None Include="WinCompatibilityPack.psd1" CopyToOutputDirectory="Always" />
-    <None Include="WinCompatibilityPack.psm1" CopyToOutputDirectory="Always" />
   </ItemGroup>
 </Project>
