@@ -7,6 +7,89 @@ using namespace System.Management.Automation.Runspaces
 
 Set-StrictMode -Version latest
 
+# PSCore 6.0.x has older versions of assemblies from WCP that are not compatible
+if ($PSVersionTable.PSEdition -eq 'Core' -and $PSVersionTable.PSVersion.Major -eq 6 -and
+    $PSVersionTable.PSVersion.Minor -eq 0)
+{
+    throw "This module is not compatible with PSCore 6.0.x, please upgrade to PSCore 6.1 or newer"
+}
+
+$coreWcpAssemblies = @(
+    'Microsoft.Win32.SystemEvents.dll',
+    'System.CodeDom.dll',
+    'System.Configuration.ConfigurationManager.dll',
+    'System.Data.DataSetExtensions.dll',
+    'System.Data.Odbc.dll',
+    'System.Diagnostics.PerformanceCounter.dll',
+    'System.DirectoryServices.AccountManagement.dll',
+    'System.DirectoryServices.dll',
+    'System.DirectoryServices.Protocols.dll',
+    'System.Drawing.Common.dll',
+    'System.IO.Ports.dll',
+    'System.Management.dll',
+    'System.Runtime.Caching.dll',
+    'System.Security.Cryptography.ProtectedData.dll',
+    'System.Security.Cryptography.Xml.dll',
+    'System.ServiceModel.Syndication.dll'
+)
+
+$fullWcpShims = @(
+    'Microsoft.Win32.Registry.AccessControl.dll',
+    'Microsoft.Win32.Registry.dll',
+    'Microsoft.Win32.SystemEvents.dll',
+    'System.CodeDom.dll',
+    'System.Configuration.ConfigurationManager.dll',
+    'System.Data.Odbc.dll',
+    'System.Data.SqlClient.dll',
+    'System.Diagnostics.EventLog.dll',
+    'System.Diagnostics.PerformanceCounter.dll',
+    'System.Drawing.Common.dll',
+    'System.IO.FileSystem.AccessControl.dll',
+    'System.IO.Packaging.dll',
+    'System.IO.Pipes.AccessControl.dll',
+    'System.IO.Ports.dll',
+    'System.Management.Automation.dll',
+    'System.Runtime.CompilerServices.Unsafe.dll',
+    'System.Security.AccessControl.dll',
+    'System.Security.Cryptography.Cng.dll',
+    'System.Security.Cryptography.Pkcs.dll',
+    'System.Security.Cryptography.ProtectedData.dll',
+    'System.Security.Cryptography.Xml.dll',
+    'System.Security.Permissions.dll',
+    'System.Security.Principal.Windows.dll',
+    'System.ServiceModel.Duplex.dll',
+    'System.ServiceModel.Http.dll',
+    'System.ServiceModel.NetTcp.dll',
+    'System.ServiceModel.Primitives.dll',
+    'System.ServiceModel.Syndication.dll',
+    'System.ServiceProcess.ServiceController.dll',
+    'System.Text.Encoding.CodePages.dll',
+    'System.Threading.AccessControl.dll'
+)
+
+$assembliesToLoad = @()
+$runtime = ""
+if ($PSEdition -eq 'core')
+{
+    $assembliesToLoad = $coreWcpAssemblies
+    $runtime = "netcoreapp20"
+}
+else
+{
+    $assembliesToLoad = $fullWcpShims
+    $runtime = "net472"
+}
+
+$modulePath = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
+$loadedAssemblies = [System.AppDomain]::CurrentDomain.GetAssemblies() | ForEach-Object { if ($_.Location -ne $null) { Split-Path -Path $_.Location -Leaf } }
+foreach ($assembly in $assembliesToLoad)
+{
+    if ($loadedAssemblies -notcontains $assembly)
+    {
+        Add-Type -Path "$modulePath\$runtime\$assembly"
+    }
+}
+
 ###########################################################################################
 # A list of modules native to PowerShell Core that should never be imported
 $NeverImportList = @(
