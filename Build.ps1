@@ -75,7 +75,7 @@ $pscore6assemblies = @(
     'WindowsBase.dll'
 )
 
-$otherExcludedAssmblies = @(
+$otherExcludedAssemblies = @(
     'WinCompatibilityPack.dll'
 )
 
