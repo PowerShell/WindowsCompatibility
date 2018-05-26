@@ -22,6 +22,10 @@ if ($null -eq (Get-Command dotnet -ErrorAction SilentlyContinue))
 
 $currentPath = Split-Path $MyInvocation.MyCommand.Path -Parent
 $outputPath = Join-Path -Path $currentPath -ChildPath "bin"
+if (-not (Test-Path $outputPath))
+{
+    New-Item -ItemType Directory $outputPath
+}
 
 if ($Clean)
 {
@@ -79,12 +83,18 @@ $otherExcludedAssemblies = @(
     'WinCompatibilityPack.dll'
 )
 
+Write-Verbose "Installing .psd1/psm1 files" -Verbose
+foreach ($file in @('WinCompatibilityPack.psd1','WinCompatibilityPack.psm1'))
+{
+    Copy-Item .\WinCompatibilityPack\$file -Destination $outputPath
+}
+
 foreach ($target in @('netcoreapp20','net472'))
 {
     Write-Verbose "Building for $target" -Verbose
     dotnet publish .\WinCompatibilityPack -c Release -f $target -r win-x64
     $null = New-Item "$outputPath\$target" -ItemType Directory -Force -ErrorAction SilentlyContinue
-    foreach ($assembly in (Get-ChildItem ".\WinCompatibilityPack\bin\Release\$target\win-x64\publish\*.dll"))
+    foreach ($assembly in Get-ChildItem ".\WinCompatibilityPack\bin\Release\$target\win-x64\publish\*.dll")
     {
         if ($otherExcludedAssemblies -contains $assembly.Name -or
             ($target -eq 'netcoreapp20' -and $pscore6assemblies -contains $assembly.Name))
@@ -93,11 +103,6 @@ foreach ($target in @('netcoreapp20','net472'))
         }
         Copy-Item $assembly -Destination "$outputPath\$target" -Force
     }
-}
-
-foreach ($file in @('WinCompatibilityPack.psd1','WinCompatibilityPack.psm1'))
-{
-    Copy-Item .\WinCompatibilityPack\$file -Destination $outputPath
 }
 
 Write-Verbose "Converting help" -Verbose

@@ -41,7 +41,7 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         $info.Name | Should -BeExactly "PnpDevice"
     }
 
-    It "Import-WinModule should import the PnpDevice module" {
+    It "Import-WinModule should import the PnpDevice module" -Skip:($PSEdition -eq "Desktop") {
         # Remove the PnpDevice module if it's installed
         Get-Module PnpDevice | Remove-Module
 
@@ -65,13 +65,15 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         Get-Module PnpDevice | Remove-Module
     }
 
-    It "Import-WinModule Microsoft.PowerShell.Management should import new commands but not overwrite existing ones" {
+    It "Import-WinModule Microsoft.PowerShell.Management should import new commands but not overwrite existing ones" -Skip:($PSEdition -eq "Desktop") {
         # Remove the proxy module if present
         Get-Module Microsoft.PowerShell.Management |
             Where-Object ModuleType -eq Script |
                 Remove-Module
         # Import the proxy module
         Import-WinModule  Microsoft.PowerShell.Management
+        # Verify that the module is named with ".WinModule" appended
+        Get-Module "Microsoft.PowerShell.Management.WinModule" | Should -Not -BeNullOrEmpty 
         # Verify PS Core native commands don't get overridden
         $cmd = Get-Command Get-ChildItem
         $cmd.Module.ModuleType | Should -BeExactly "Manifest"
@@ -98,14 +100,14 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         $result | Should -BeExactly "Desktop"
     }
 
-    It "Compare-WinModule should return a non-null collection of modules" {
+    It "Compare-WinModule should return a non-null collection of modules" -Skip:($PSEdition -eq "Desktop") {
         $pattern = 'Azure*'
         $modules = Compare-WinModule $pattern
         $modules | Should -Not -BeNullOrEmpty
         $modules[0].Name | Should -BeLike $pattern
     }
 
-    It "Copy-WinModule should copy the specified module to the destination path" {
+    It "Copy-WinModule should copy the specified module to the destination path" -Skip:($PSEdition -eq "Desktop") {
         $tempDirToUse = Join-Path TestDrive: "tmp$(Get-Random)"
         New-Item -ItemType directory $tempDirToUse
 
@@ -144,7 +146,7 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         Remove-Module PnpDevice
     }
 
-    It "Copy-WinModule should copy the specified module to the user's module path by default" {
+    It "Copy-WinModule should copy the specified module to the user's module path by default" -Skip:($PSEdition -eq "Desktop") {
 
         # Get the user's module folder path
         $destination = [environment]::GetFolderPath([System.Environment+SpecialFolder]::MyDocuments),
