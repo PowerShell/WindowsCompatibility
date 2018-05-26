@@ -80,13 +80,16 @@ else
     $runtime = "net472"
 }
 
-$modulePath = Split-Path -Path $MyInvocation.MyCommand.Path -Parent
-$loadedAssemblies = [System.AppDomain]::CurrentDomain.GetAssemblies() | ForEach-Object { if ($_.Location -ne $null) { Split-Path -Path $_.Location -Leaf } }
+$loadedAssemblies = [System.AppDomain]::CurrentDomain.GetAssemblies() | ForEach-Object {
+        # skip in-memory modules that have an empty location
+        if ($_.Location) { Split-Path -Path $_.Location -Leaf }
+    }
+
 foreach ($assembly in $assembliesToLoad)
 {
     if ($loadedAssemblies -notcontains $assembly)
     {
-        Add-Type -Path "$modulePath\$runtime\$assembly"
+        Add-Type -Path "$PSscriptRoot\$runtime\$assembly"
     }
 }
 
@@ -505,6 +508,11 @@ function Import-WinModule
             $PassThru
     )
 
+    if ($PSEdition -eq "Desktop")
+    {
+        throw "This command is only supported on PowerShell Core"
+    }
+
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
 
     Write-Verbose -Verbose:$verboseFlag "Connecting to compatibility session."
@@ -563,7 +571,16 @@ function Import-WinModule
         }
         if ($noClobberNames)
         {
-            Import-Module  -Name $noClobberNames -NoClobber @importModuleParameters
+            $importModuleParameters.PassThru = $true
+            foreach ($name in $noClobberNames)
+            {
+                $module = Import-Module -Name $name -NoClobber @importModuleParameters
+                # hack using private reflection to keep the proxy module from shadowing the real module
+                $module.
+                    GetType().
+                        GetMethod("SetName",[System.Reflection.BindingFlags]'Instance, NonPublic').
+                            Invoke($module, @($module.Name + ".WinModule"))
+            }
         }
     }
     else
