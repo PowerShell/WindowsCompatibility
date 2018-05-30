@@ -36,63 +36,9 @@ if ($Clean)
     }
 }
 
-$pscore6assemblies = @(
-    'Microsoft.Win32.Registry.AccessControl.dll',
-    'Microsoft.Win32.Registry.dll',
-    'mscorlib.dll',
-    'sni.dll',
-    'System.ComponentModel.Composition.dll',
-    'System.Configuration.dll',
-    'System.Core.dll',
-    'System.Data.dll',
-    'System.Data.SqlClient.dll',
-    'System.Diagnostics.DiagnosticSource.dll',
-    'System.dll',
-    'System.Drawing.dll',
-    'System.IO.FileSystem.AccessControl.dll',
-    'System.IO.Packaging.dll',
-    'System.Memory.dll',
-    'System.Net.dll',
-    'System.Net.Http.WinHttpHandler.dll',
-    'System.Runtime.CompilerServices.Unsafe.dll',
-    'System.Security.AccessControl.dll',
-    'System.Security.Cryptography.Pkcs.dll',
-    'System.Security.dll',
-    'System.Security.Permissions.dll',
-    'System.Security.Principal.Windows.dll',
-    'System.ServiceModel.dll',
-    'System.ServiceModel.Duplex.dll',
-    'System.ServiceModel.Http.dll',
-    'System.ServiceModel.NetTcp.dll',
-    'System.ServiceModel.Primitives.dll',
-    'System.ServiceModel.Security.dll',
-    'System.ServiceModel.Web.dll',
-    'System.ServiceProcess.dll',
-    'System.ServiceProcess.ServiceController.dll',
-    'System.Text.Encoding.CodePages.dll',
-    'System.Threading.AccessControl.dll',
-    'System.Transactions.dll',
-    'WindowsBase.dll'
-)
-
-$otherExcludedAssemblies = @(
-    'WinCompatibilityPack.dll'
-)
-
-foreach ($target in @('netcoreapp20','net472'))
+if (-not (Test-Path -PathType Container $outputPath))
 {
-    Write-Verbose "Building for $target" -Verbose
-    dotnet publish .\WinCompatibilityPack -c Release -f $target -r win-x64
-    $null = New-Item "$outputPath\$target" -ItemType Directory -Force -ErrorAction SilentlyContinue
-    foreach ($assembly in (Get-ChildItem ".\WinCompatibilityPack\bin\Release\$target\win-x64\publish\*.dll"))
-    {
-        if ($otherExcludedAssemblies -contains $assembly.Name -or
-            ($target -eq 'netcoreapp20' -and $pscore6assemblies -contains $assembly.Name))
-        {
-            continue
-        }
-        Copy-Item $assembly -Destination "$outputPath\$target" -Force
-    }
+    New-Item -ItemType Directory -Path $outputPath
 }
 
 foreach ($file in @('WinCompatibilityPack.psd1','WinCompatibilityPack.psm1'))
