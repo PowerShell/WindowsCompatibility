@@ -19,7 +19,7 @@ invoke commands that are only available in Windows PowerShell. These utilities h
 to discover available modules, import those modules through proxies and then use the module
 commands much as if they were native to PowerShell Core.
 '@
-PowerShellVersion = '5.1'
+PowerShellVersion = '6.0'
 FunctionsToExport = @(
     'Initialize-WinSession',
     'Add-WinFunction',
