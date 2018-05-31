@@ -1,8 +1,0 @@
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>netcoreapp20;net472</TargetFrameworks>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.Compatibility" Version="2.0.0-rc1" />
-  </ItemGroup>
-</Project>

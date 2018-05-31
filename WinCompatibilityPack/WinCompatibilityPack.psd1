@@ -8,7 +8,7 @@
 @{
 RootModule = 'WinCompatibilityPack.psm1'
 ModuleVersion = '0.0.1'
-CompatiblePSEditions = @('Desktop','Core')
+CompatiblePSEditions = @('Core')
 GUID = '9d427bc5-2ae1-4806-b9d1-2ae62461767e'
 Author = 'PowerShell'
 CompanyName = 'Microsoft Corporation'
@@ -32,7 +32,7 @@ FunctionsToExport = @(
 )
 PrivateData = @{
     PSData = @{
-        Tags = @('Compatibility', 'Desktop', 'Core')
+        Tags = @('Compatibility', 'Core')
         LicenseUri = 'https://opensource.org/licenses/MIT'
         ProjectUri = 'https://github.com/PowerShell/WindowsPowerShellCompatibilityPack'
         ReleaseNotes = @'
@@ -50,9 +50,6 @@ individual commands for examples on how to use this functionality.
 
 Additionally, the command `Add-WindowsPSModulePath` enables enumerating
 existing Windows PowerShell modules within PowerShell Core 6.
-
-The .Net Windows Compatibility Pack is included in this module exposing
-more .Net APIs you can use with PowerShell.
 '@
 
     } # End of PSData hashtable
