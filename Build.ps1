@@ -13,11 +13,6 @@ if ($null -eq (Get-Command New-ExternalHelp -ErrorAction SilentlyContinue))
     throw "Please install PlatyPS using: Install-Module PlatyPS -Scope currentuser"
 }
 
-if ($null -eq (Get-Command dotnet -ErrorAction SilentlyContinue))
-{
-    throw "'dotnet' not found in path.  Please install DotNetCli from https://dot.net/core"
-}
-
 #endregion Dependency checks
 
 $currentPath = Split-Path $MyInvocation.MyCommand.Path -Parent
