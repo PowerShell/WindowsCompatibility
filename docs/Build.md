@@ -33,7 +33,7 @@ Import-Module WinCompatibilityPack -Force
 
 ## Building Help Documentation
 
-The Help Documentation for this project is generated using PlatyPS.
+The Help Documentation for this project is generated using [PlatyPS][PlatyPS].
 The markdown files located in [docs/Module/][ModuleDocs]
 are transformed to MAML external help documentation.
 As a result, Comment Based Help should not be used in this project.
