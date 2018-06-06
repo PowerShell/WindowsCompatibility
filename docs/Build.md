@@ -26,9 +26,7 @@ Set-Location WindowsPowerShellCompatibilityPack
 From the project root, run the following:
 
 ```powershell
-$OutputPath = Join-Path $Pwd 'bin'
-$env:PSModulePath = '{0}{1}{2}' -f $OutputPath, ([System.IO.Path]::PathSeparator), $env:PSModulePath
-Import-Module WinCompatibilityPack -Force
+Import-Module ./bin/WinCompatibilityPack.psd1 -Force
 ```
 
 ## Building Help Documentation
