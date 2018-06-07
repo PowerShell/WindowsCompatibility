@@ -6,7 +6,39 @@ This module provides PowerShell Core 6 compatibility with existing Windows Power
   - Note that some Windows PowerShell modules (like CDXML based) will work fine with PowerShell Core 6, but others may not be fully compatible
 - Enable using implicit remoting to utilize Windows PowerShell cmdlets from PowerShell Core 6 for modules that are not compatible directly
 
-Maintainers:
+## Installation
+
+Coming Soon: This module will soon be available from the PowerShell Gallery.
+
+## Quick Start
+
+Viewing the local computer's Event Log from PowerShell Core:
+
+```powershell
+Import-WinModule Microsoft.PowerShell.Management
+Get-EventLog -Newest 5 -LogName "Application"
+```
+
+View the Event Log on a remote computer from PowerShell Core:
+
+```powershell
+$Credential = Get-Credential
+Initialize-WinSession -ComputerName SQLSERVER01 -Credential $Credential
+Import-WinModule Microsoft.PowerShell.Management
+Get-EventLog -Newest 5 -LogName "Application"
+```
+
+View more in the [Quick Start Guide][QuickStart].
+
+[QuickStart]: ./docs/QuickStart.md
+
+## Documentation
+
+The project documentation is located in the [docs][ProjectDocs] directory.
+
+[ProjectDocs]: ./docs/
+
+## Maintainers
 
 - Mark Kraus ([markekraus](https://github.com/markekraus))
 - Steve Lee ([stevel-msft](https://github.com/stevel-msft))
