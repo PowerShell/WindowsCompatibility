@@ -1,18 +1,18 @@
 ---
-Module Name: WinCompatibilityPack
+Module Name: WindowsCompatibility
 Module Guid: 9d427bc5-2ae1-4806-b9d1-2ae62461767e
 Download Help Link:
 Help Version: 0.0.0.1
 Locale: en-US
 ---
 
-# WinCompatibilityPack Module
+# WindowsCompatibility Module
 
 ## Description
 
 This module provides PowerShell Core 6 compatibility with existing Windows PowerShell scripts.
 
-## WinCompatibilityPack Cmdlets
+## WindowsCompatibility Cmdlets
 
 ### [Add-WindowsPSModulePath](Add-WindowsPSModulePath.md)
 
