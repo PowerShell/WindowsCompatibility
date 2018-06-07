@@ -1,6 +1,6 @@
 ---
-external help file: WinCompatibilityPack-help.xml
-Module Name: WinCompatibilityPack
+external help file: WindowsCompatibility-help.xml
+Module Name: WindowsCompatibility
 online version:
 schema: 2.0.0
 ---

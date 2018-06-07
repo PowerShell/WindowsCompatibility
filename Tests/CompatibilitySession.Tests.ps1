@@ -9,7 +9,7 @@ $scriptPath = Split-Path $MyInvocation.MyCommand.Path -Parent
 Describe "Test the Windows PowerShell Compatibility Session functions" {
 
     BeforeAll {
-        Import-Module -Force "$scriptPath\..\bin\WinCompatibilityPack.psd1"
+        Import-Module -Force "$scriptPath\..\bin\WindowsCompatibility.psd1"
     }
 
     It "Make sure the <command> command exists" -TestCases @(

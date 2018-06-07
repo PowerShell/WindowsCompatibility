@@ -36,9 +36,9 @@ if (-not (Test-Path -PathType Container $outputPath))
     New-Item -ItemType Directory -Path $outputPath
 }
 
-foreach ($file in @('WinCompatibilityPack.psd1','WinCompatibilityPack.psm1'))
+foreach ($file in @('WindowsCompatibility.psd1','WindowsCompatibility.psm1'))
 {
-    Copy-Item .\WinCompatibilityPack\$file -Destination $outputPath
+    Copy-Item .\WindowsCompatibility\$file -Destination $outputPath
 }
 
 Write-Verbose "Converting help" -Verbose

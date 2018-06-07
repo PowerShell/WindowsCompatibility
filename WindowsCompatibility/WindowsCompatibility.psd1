@@ -2,11 +2,11 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT License.
 #
-# Module manifest for module 'WinCompatibilityPack'
+# Module manifest for module 'WindowsCompatibility'
 #
 
 @{
-RootModule = 'WinCompatibilityPack.psm1'
+RootModule = 'WindowsCompatibility.psm1'
 ModuleVersion = '0.0.1'
 CompatiblePSEditions = @('Core')
 GUID = '9d427bc5-2ae1-4806-b9d1-2ae62461767e'
