@@ -15,7 +15,7 @@ $NeverImportList = @(
     "PowerShellGet",
     "Microsoft.PowerShell.Archive",
     "Microsoft.PowerShell.Host",
-    "WinCompatibilityPack"
+    "WindowsCompatibility"
 )
 
 ###########################################################################################

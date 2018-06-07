@@ -1,4 +1,4 @@
-# Windows PowerShell Compatibility Pack
+# Windows PowerShell Compatibility
 
 This module provides PowerShell Core 6 compatibility with existing Windows PowerShell scripts and modules by:
 
