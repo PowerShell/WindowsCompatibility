@@ -16,8 +16,8 @@ To build the project from PowerShell:
 
 ```powershell
 Install-Module -Scope CurrentUser PlatyPS
-git clone https://github.com/PowerShell/WindowsPowerShellCompatibilityPack.git
-Set-Location WindowsPowerShellCompatibilityPack
+git clone https://github.com/PowerShell/WindowsCompatibility.git
+Set-Location WindowsCompatibility
 ./build.ps1
 ```
 
@@ -26,7 +26,7 @@ Set-Location WindowsPowerShellCompatibilityPack
 From the project root, run the following:
 
 ```powershell
-Import-Module ./bin/WinCompatibilityPack.psd1 -Force
+Import-Module ./bin/WindowsCompatibility.psd1 -Force
 ```
 
 ## Building Help Documentation
@@ -43,7 +43,7 @@ New-Item -ItemType Directory -Path ./bin -ErrorAction SilentlyContinue
 New-ExternalHelp -OutputPath ./bin/ -Path ./docs/Module/ -Force
 ```
 
-[ModuleDocs]: Module/WinCompatibilityPack.md
+[ModuleDocs]: Module/WindowsCompatibility.md
 
 ## Build Script Parameters
 

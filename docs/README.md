@@ -7,7 +7,7 @@
 * [Installation][Installation]
 * [Build Documentation][BuildDocs]
 
-[ModuleDocs]: Module/WinCompatibilityPack.md
+[ModuleDocs]: Module/WindowsCompatibility.md
 [QuickStart]: QuickStart.md
 [Installation]: Installation.md
 [BuildDocs]: Build.md
