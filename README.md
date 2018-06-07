@@ -8,7 +8,17 @@ This module provides PowerShell Core 6 compatibility with existing Windows Power
 
 ## Installation
 
-Coming Soon: This module will soon be available from the PowerShell Gallery.
+#### [PowerShell V5](https://www.microsoft.com/en-us/download/details.aspx?id=50395) and Later
+You can install the `WindowsCompatibility` module directly from the PowerShell Gallery
+
+* [Recommended] Install to your personal PowerShell Modules folder
+```PowerShell
+Install-Module WindowsCompatibility -scope CurrentUser
+```
+* [Requires Elevation] Install for Everyone (computer PowerShell Modules folder)
+```PowerShell
+Install-Module WindowsCompatibility
+```
 
 ## Quick Start
 
