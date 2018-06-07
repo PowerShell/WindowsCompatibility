@@ -8,7 +8,7 @@ This module provides PowerShell Core 6 compatibility with existing Windows Power
 
 ## Installation
 
-The  Module is available in the [PowerShell Gallery][PSGallery].
+The WindowsCompatibility Module is available in the [PowerShell Gallery][PSGallery].
 To install the module, run the following from PowerShell:
 
 ```powershell
