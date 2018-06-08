@@ -30,9 +30,9 @@ Commands that already exist in PowerShell core will not be overridden.
 These modules are:
 
 - Microsoft.PowerShell.Management
-- Microsoft.PowerShell.Utility"
-- Microsoft.PowerShell.Security"
-- Microsoft.PowerShell.Diagnostics"
+- Microsoft.PowerShell.Utility
+- Microsoft.PowerShell.Security
+- Microsoft.PowerShell.Diagnostics
 
 Commands from much of the other modules can be fully imported.
 
