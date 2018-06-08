@@ -698,7 +698,7 @@ function Add-WindowsPSModulePath
     $WindowsPSModulePath = [System.Environment]::GetEnvironmentVariable("psmodulepath", [System.EnvironmentVariableTarget]::Machine)
     if (-not ($env:PSModulePath).Contains($WindowsPSModulePath))
     {
-        $env:PSModulePath += ";${env:userprofile}\Documents\WindowsPowerShell\Modules;${env:programfiles}\WindowsPowerShell\Modules;${WindowsPSModulePath}"
+        $env:PSModulePath += ";${env:userprofile}\Documents\WindowsPowerShell\Modules;${WindowsPSModulePath}"
     }
 
 }
