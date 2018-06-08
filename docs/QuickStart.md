@@ -25,7 +25,7 @@ Get-EventLog -Newest 5 -LogName "Application"
 ## Create a Windows PowerShell Function in PowerShell Core
 
 ```powershell
-Add-WinFunction -FunctionName Get-WinPSVersion -ScriptBlock {
+Add-WinFunction -Name Get-WinPSVersion -ScriptBlock {
     $PSVersionTable
 }
 Get-WinPSVersion
