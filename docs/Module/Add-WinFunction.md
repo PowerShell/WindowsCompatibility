@@ -14,7 +14,7 @@ This command defines a global function that always runs in the compatibility ses
 ## SYNTAX
 
 ```
-Add-WinFunction [-FunctionName] <String> [-ScriptBlock] <ScriptBlock> [-ComputerName <String>]
+Add-WinFunction [-Name] <String> [-ScriptBlock] <ScriptBlock> [-ComputerName <String>]
  [-ConfigurationName <String>] [-Credential <PSCredential>] [<CommonParameters>]
 ```
 
@@ -99,14 +99,14 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -FunctionName
+### -Name
 
 The name of the function to define.
 
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases:
+Aliases: FunctionName
 
 Required: True
 Position: 1

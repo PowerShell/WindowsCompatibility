@@ -198,7 +198,8 @@ function Add-WinFunction
         # The name of the function to define
         [Parameter(Mandatory,Position=0)]
         [String]
-            $FunctionName,
+        [Alias("FunctionName")]
+            $Name,
 
         # Scriptblock to use as the body of the function
         [Parameter(Mandatory,Position=1)]
@@ -228,7 +229,7 @@ function Add-WinFunction
     )
 
     # Make sure the session is initialized
-    [void] $PSBoundParameters.Remove('FunctionName')
+    [void] $PSBoundParameters.Remove('Name')
     [void] $PSBoundParameters.Remove('ScriptBlock')
 
     Initialize-WinSession @PSBoundParameters
@@ -238,7 +239,7 @@ function Add-WinFunction
         $session = Get-PSsession -Name $localSessionName
         Invoke-Command -Session $session -Scriptblock $ScriptBlock -ArgumentList $args
     }
-    Set-item function:Global:$FunctionName $wrapper.GetNewClosure();
+    Set-item function:Global:$Name $wrapper.GetNewClosure();
 }
 
 function Invoke-WinCommand
