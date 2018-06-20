@@ -21,7 +21,7 @@ Copy-WinModule [[-Name] <String[]>] [-ComputerName <String>] [-ConfigurationName
 ## DESCRIPTION
 
 Copy modules from the compatibility session that are directly usable in PowerShell Core.
-By default, these modules will be copied to $PSHome/Modules.
+By default, these modules will be copied to $Home/Documents/PowerShell/Modules.
 This can be overridden using the -Destination parameter.
 Once these modules have been copied,
 they will be available just like the other native modules for PowerShell Core.
