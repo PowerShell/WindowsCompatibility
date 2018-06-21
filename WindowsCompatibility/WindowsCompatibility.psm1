@@ -135,11 +135,11 @@ function Initialize-WinSession
     Write-Verbose -Verbose:$verboseFlag "Initializing the compatibility session on host '$ComputerName'."
     if ($Credential)
     {
-        $script:SessionName = "win-$($Credential.UserName)"
+        $script:SessionName = "wincompat-$ComputerName-$($Credential.UserName)"
     }
     else
     {
-        $script:SessionName = "win-$([environment]::UserName)"
+        $script:SessionName = "wincompat-$ComputerName-$([environment]::UserName)"
     }
     Write-Verbose -Verbose:$verboseFlag "The compatibility session name is '$script:SessionName'."
 
