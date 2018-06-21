@@ -695,24 +695,18 @@ function Add-WindowsPSModulePath
         return
     }
 
-    $WindowsPSModulePath = [System.Environment]::GetEnvironmentVariable("PSModulePath", [System.EnvironmentVariableTarget]::Machine)
-    if (-not $env:PSModulePath.Contains($WindowsPSModulePath))
-    {
-        $env:PSModulePath += ";${WindowsPSModulePath}"
-    }
+    $Paths = @(
+        "${env:userprofile}\Documents\WindowsPowerShell\Modules"
+        "${env:ProgramFiles}\WindowsPowerShell\Modules"
+        "${env:windir}\system32\WindowsPowerShell\v1.0\Modules"
+        [System.Environment]::GetEnvironmentVariable("PSModulePath", [System.EnvironmentVariableTarget]::Machine) -split [System.IO.Path]::PathSeparator
+    )
 
-    if (-not $env:PSModulePath.Contains("${env:ProgramFiles}\WindowsPowerShell\Modules"))
+    foreach ($Path in $Paths)
     {
-        $env:PSModulePath += ";${env:ProgramFiles}\WindowsPowerShell\Modules"
-    }
-    
-    if (-not $env:PSModulePath.Contains("${env:windir}\system32\WindowsPowerShell\v1.0\Modules"))
-    {
-        $env:PSModulePath += ";${env:windir}\system32\WindowsPowerShell\v1.0\Modules"
-    }
-    
-    if (-not $env:PSModulePath.Contains("${env:userprofile}\Documents\WindowsPowerShell\Modules"))
-    {
-        $env:PSModulePath += ";${env:userprofile}\Documents\WindowsPowerShell\Modules"
+        if (-not $env:PSModulePath.Contains($Path))
+        {
+            $env:PSModulePath += ";$Path"
+        }
     }
 }
