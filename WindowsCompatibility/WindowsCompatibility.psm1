@@ -706,7 +706,7 @@ function Add-WindowsPSModulePath
     {
         if (-not $env:PSModulePath.Contains($Path))
         {
-            $env:PSModulePath += ";$Path"
+            $env:PSModulePath += [System.IO.Path]::PathSeparator + $Path
         }
     }
 }
