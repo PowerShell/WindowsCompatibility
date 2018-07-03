@@ -684,7 +684,6 @@ function Copy-WinModule
 
 function Add-WindowsPSModulePath
 {
-
     if ($PSVersionTable.PSEdition -eq 'Core' -and -not $IsWindows)
     {
         throw "This cmdlet is only supported on Windows"
@@ -695,18 +694,23 @@ function Add-WindowsPSModulePath
         return
     }
 
-    $Paths = @(
-        "${env:userprofile}\Documents\WindowsPowerShell\Modules"
-        "${env:ProgramFiles}\WindowsPowerShell\Modules"
-        "${env:windir}\system32\WindowsPowerShell\v1.0\Modules"
-        [System.Environment]::GetEnvironmentVariable("PSModulePath", [System.EnvironmentVariableTarget]::Machine) -split [System.IO.Path]::PathSeparator
+    $paths =  @(
+    $Env:PSModulePath -split [System.IO.Path]::PathSeparator
+    "${Env:UserProfile}\Documents\WindowsPowerShell\Modules"
+    "${Env:ProgramFiles}\WindowsPowerShell\Modules"
+    "${Env:WinDir}\system32\WindowsPowerShell\v1.0\Modules"
+    [System.Environment]::GetEnvironmentVariable('PSModulePath',
+        [System.EnvironmentVariableTarget]::Machine) -split [System.IO.Path]::PathSeparator
     )
 
-    foreach ($Path in $Paths)
+    $pathTable = [ordered] @{}
+    foreach ($path in $paths)
     {
-        if (-not $env:PSModulePath.Contains($Path))
+        if ($pathTable[$path])
         {
-            $env:PSModulePath += [System.IO.Path]::PathSeparator + $Path
+            continue
         }
+        $pathTable[$path] = $true
     }
+    $Env:PSModulePath = $pathTable.Keys -join [System.IO.Path]::PathSeparator
 }
