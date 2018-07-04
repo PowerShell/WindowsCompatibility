@@ -695,12 +695,12 @@ function Add-WindowsPSModulePath
     }
 
     $paths =  @(
-    $Env:PSModulePath -split [System.IO.Path]::PathSeparator
-    "${Env:UserProfile}\Documents\WindowsPowerShell\Modules"
-    "${Env:ProgramFiles}\WindowsPowerShell\Modules"
-    "${Env:WinDir}\system32\WindowsPowerShell\v1.0\Modules"
-    [System.Environment]::GetEnvironmentVariable('PSModulePath',
-        [System.EnvironmentVariableTarget]::Machine) -split [System.IO.Path]::PathSeparator
+        $Env:PSModulePath -split [System.IO.Path]::PathSeparator
+        "${Env:UserProfile}\Documents\WindowsPowerShell\Modules"
+        "${Env:ProgramFiles}\WindowsPowerShell\Modules"
+        "${Env:WinDir}\system32\WindowsPowerShell\v1.0\Modules"
+        [System.Environment]::GetEnvironmentVariable('PSModulePath',
+            [System.EnvironmentVariableTarget]::Machine) -split [System.IO.Path]::PathSeparator
     )
 
     $pathTable = [ordered] @{}
