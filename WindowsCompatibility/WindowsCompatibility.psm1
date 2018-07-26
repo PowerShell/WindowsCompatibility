@@ -93,6 +93,8 @@ $DefaultConfigurationName = 'Microsoft.PowerShell'
 # Specifies the default name of the computer on which to create the compatibility session
 $DefaultComputerName = 'localhost'
 
+Set-Alias -Name Add-WinPSModulePath -Value Add-WindowsPSModulePath
+
 function Initialize-WinSession
 {
     [CmdletBinding()]

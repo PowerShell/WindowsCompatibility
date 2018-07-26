@@ -30,6 +30,7 @@ FunctionsToExport = @(
     'Copy-WinModule',
     'Add-WindowsPSModulePath'
 )
+AliasesToExport = @('Add-WinPSModulePath')
 PrivateData = @{
     PSData = @{
         Tags = @('Compatibility', 'Core')
