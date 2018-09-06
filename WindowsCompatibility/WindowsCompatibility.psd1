@@ -34,7 +34,7 @@ PrivateData = @{
     PSData = @{
         Tags = @('Compatibility', 'Core')
         LicenseUri = 'https://opensource.org/licenses/MIT'
-        ProjectUri = 'https://github.com/PowerShell/WindowsPowerShellCompatibilityPack'
+        ProjectUri = 'https://github.com/PowerShell/WindowsCompatibility'
         ReleaseNotes = @'
 This is the first release of this module with the basic commands:
     Initialize-WinSession
