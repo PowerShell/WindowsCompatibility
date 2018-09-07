@@ -14,7 +14,7 @@ Author = 'PowerShell'
 CompanyName = 'Microsoft Corporation'
 Copyright = 'Copyright (c) Microsoft Corporation. All rights reserved'
 Description = @'
-This module Provides compatibility utilities that allow PowerShell Core sessions to
+This module provides compatibility utilities that allow PowerShell Core sessions to
 invoke commands that are only available in Windows PowerShell. These utilities help you
 to discover available modules, import those modules through proxies and then use the module
 commands much as if they were native to PowerShell Core.
