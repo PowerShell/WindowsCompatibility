@@ -23,9 +23,16 @@ Import-WinModule [[-Name] <String[]>] [-Exclude <String[]>] [-ComputerName <Stri
 
 This command allows you to import proxy modules from a local or remote session.
 These proxy modules will allow you to invoke cmdlets that are not directly supported in this version of PowerShell.
+
 There are commands in the Windows PowerShell core modules that don't exist natively in PowerShell Core.
 If these modules are imported, proxies will only be created for the missing commands.
-Commands that already exist in PowerShell core will not be overridden.
+Commands that already exist in PowerShell Core will not be overridden.
+The modules subject to this restriction are:
+
+- Microsoft.PowerShell.Management
+- Microsoft.PowerShell.Utility
+- Microsoft.PowerShell.Security
+- Microsoft.PowerShell.Diagnostics
 
 By default, when executing, the current compatibility session is used,
 or, in the case where there is no existing session, a new default session will be created.

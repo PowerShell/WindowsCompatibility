@@ -93,6 +93,8 @@ $SessionComputerName = 'localhost'
 # Specifies the default configuration to connect to when creating the compatibility session
 $SessionConfigurationName = 'Microsoft.PowerShell'
 
+Set-Alias -Name Add-WinPSModulePath -Value Add-WindowsPSModulePath
+
 function Initialize-WinSession
 {
     [CmdletBinding()]
@@ -693,7 +695,6 @@ function Copy-WinModule
 
 function Add-WindowsPSModulePath
 {
-
     if ($PSVersionTable.PSEdition -eq 'Core' -and -not $IsWindows)
     {
         throw "This cmdlet is only supported on Windows"
@@ -704,9 +705,24 @@ function Add-WindowsPSModulePath
         return
     }
 
-    $WindowsPSModulePath = [System.Environment]::GetEnvironmentVariable("psmodulepath", [System.EnvironmentVariableTarget]::Machine)
-    if (-not ($env:PSModulePath).Contains($WindowsPSModulePath))
+    $paths =  @(
+        $Env:PSModulePath -split [System.IO.Path]::PathSeparator
+        "${Env:UserProfile}\Documents\WindowsPowerShell\Modules"
+        "${Env:ProgramFiles}\WindowsPowerShell\Modules"
+        "${Env:WinDir}\system32\WindowsPowerShell\v1.0\Modules"
+        [System.Environment]::GetEnvironmentVariable('PSModulePath',
+            [System.EnvironmentVariableTarget]::Machine) -split [System.IO.Path]::PathSeparator
+    )
+
+    $pathTable = [ordered] @{}
+    foreach ($path in $paths)
     {
-        $env:PSModulePath += ";${env:userprofile}\Documents\WindowsPowerShell\Modules;${env:programfiles}\WindowsPowerShell\Modules;${WindowsPSModulePath}"
+        if ($pathTable[$path])
+        {
+            continue
+        }
+        $pathTable[$path] = $true
     }
+
+    $Env:PSModulePath = $pathTable.Keys -join [System.IO.Path]::PathSeparator
 }
