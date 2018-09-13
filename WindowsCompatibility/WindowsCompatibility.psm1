@@ -87,11 +87,11 @@ $CompatibleModules = @(
 # Module-scope variable to hold the active compatibility session name
 $SessionName = $null
 
-# Specifies the default configuration to connect to when creating the compatibility session
-$DefaultConfigurationName = 'Microsoft.PowerShell'
+# The computer name to use if one isn't provided.
+$SessionComputerName = 'localhost'
 
-# Specifies the default name of the computer on which to create the compatibility session
-$DefaultComputerName = 'localhost'
+# Specifies the default configuration to connect to when creating the compatibility session
+$SessionConfigurationName = 'Microsoft.PowerShell'
 
 Set-Alias -Name Add-WinPSModulePath -Value Add-WindowsPSModulePath
 
@@ -104,17 +104,16 @@ function Initialize-WinSession
         # If you don't want to use the default compatibility session, use
         # this parameter to specify the name of the computer on which to create
         # the compatibility session.
-        # (Defaults to 'localhost')
         [Parameter(Mandatory=$false,Position=0)]
         [String]
         [Alias("Cn")]
-            $ComputerName = $script:DefaultComputerName,
+            $ComputerName,
 
         # Specifies the configuration to connect to when creating the compatibility session
         # (Defaults to 'Microsoft.PowerShell')
         [Parameter()]
         [String]
-            $ConfigurationName = $script:DefaultConfigurationName,
+            $ConfigurationName,
 
         # The credential to use when connecting to the target machine/configuration
         [Parameter()]
@@ -135,6 +134,25 @@ function Initialize-WinSession
     }
 
     Write-Verbose -Verbose:$verboseFlag "Initializing the compatibility session on host '$ComputerName'."
+
+    if ($ComputerName)
+    {
+        $script:SessionComputerName = $ComputerName
+    }
+    else
+    {
+        $ComputerName = $script:SessionComputerName
+    }
+
+    if ($ConfigurationName)
+    {
+        $script:SessionConfigurationName = $ConfigurationName
+    }
+    else
+    {
+        $ConfigurationName = $script:SessionConfigurationName
+    }
+
     if ($Credential)
     {
         $script:SessionName = "wincompat-$ComputerName-$($Credential.UserName)"
@@ -143,14 +161,14 @@ function Initialize-WinSession
     {
         $script:SessionName = "wincompat-$ComputerName-$([environment]::UserName)"
     }
+
     Write-Verbose -Verbose:$verboseFlag "The compatibility session name is '$script:SessionName'."
 
-    # BUGBUG - need to deal with the possibilities of multiple sessions
     $session = Get-PSSession | Where-Object {
         $_.ComputerName      -eq $ComputerName -and
         $_.ConfigurationName -eq $ConfigurationName -and
         $_.Name              -eq $script:SessionName
-    }
+        } | Select-Object -First 1
 
     if ($session -and $session.State -ne "Opened")
     {
@@ -176,13 +194,12 @@ function Initialize-WinSession
         {
             $newPSSessionParameters.EnableNetworkAccess = $true
         }
-        Write-Verbose -Verbose:$verboseFlag "Creating a new compatibility session."
-        ##BUGBUG need to deal with the case where there might be multiple sessions because someone hit ctrl-C
-        $session = New-PSSession @newPSSessionParameters
+        Write-Verbose -Verbose:$verboseFlag "Created new session on host '$computername'"
+        $session = New-PSSession @newPSSessionParameters | Select-Object -First 1
     }
     else
     {
-        Write-Verbose -Verbose:$verboseFlag "Reusing the existing compatibility session."
+        Write-Verbose -Verbose:$verboseFlag "Reusing the existing compatibility session; 'host = $script:SessionComputerName'."
     }
 
     if ($PassThru)
@@ -211,17 +228,16 @@ function Add-WinFunction
         # If you don't want to use the default compatibility session, use
         # this parameter to specify the name of the computer on which to create
         # the compatibility session.
-        # (Defaults to 'localhost')
         [Parameter()]
         [String]
         [Alias("Cn")]
-            $ComputerName = $script:DefaultComputerName,
+            $ComputerName,
 
         # Specifies the configuration to connect to when creating the compatibility session
         # (Defaults to 'Microsoft.PowerShell')
         [Parameter()]
         [String]
-            $ConfigurationName = $script:DefaultConfigurationName,
+            $ConfigurationName,
 
         # The credential to use when creating the compatibility session
         # using the target machine/configuration
@@ -229,16 +245,13 @@ function Add-WinFunction
         [PSCredential]
             $Credential
     )
-
     # Make sure the session is initialized
     [void] $PSBoundParameters.Remove('Name')
     [void] $PSBoundParameters.Remove('ScriptBlock')
 
-    Initialize-WinSession @PSBoundParameters
-
-    $localSessionName = $script:SessionName
+    # the session variable will be captured in the closure
+    $session = Initialize-WinSession @PSBoundParameters -PassThru
     $wrapper = {
-        $session = Get-PSsession -Name $localSessionName
         Invoke-Command -Session $session -Scriptblock $ScriptBlock -ArgumentList $args
     }
     Set-item function:Global:$Name $wrapper.GetNewClosure();
@@ -258,17 +271,16 @@ function Invoke-WinCommand
         # If you don't want to use the default compatibility session, use
         # this parameter to specify the name of the computer on which to create
         # the compatibility session.
-        # (Defaults to 'localhost')
         [Parameter()]
         [String]
         [Alias("cn")]
-            $ComputerName = $script:DefaultComputerName,
+            $ComputerName,
 
         # Specifies the configuration to connect to when creating the compatibility session
         # (Defaults to 'Microsoft.PowerShell')
         [Parameter()]
         [String]
-            $ConfigurationName = $script:DefaultConfigurationName,
+            $ConfigurationName,
 
         # The credential to use when connecting to the compatibility session.
         [Parameter()]
@@ -305,16 +317,15 @@ function Get-WinModule
         # If you don't want to use the default compatibility session, use
         # this parameter to specify the name of the computer on which to create
         # the compatibility session.
-        # (Defaults to 'localhost')
         [Alias("cn")]
         [String]
-            $ComputerName = $script:DefaultComputerName,
+            $ComputerName,
 
         # Specifies the configuration to connect to when creating the compatibility session
         # (Defaults to 'Microsoft.PowerShell')
         [Parameter()]
         [String]
-            $ConfigurationName = $script:DefaultConfigurationName,
+            $ConfigurationName,
 
         # The credential to use when creating the compatibility session
         # using the target machine/configuration
@@ -380,17 +391,16 @@ function Import-WinModule
         # If you don't want to use the default compatibility session, use
         # this parameter to specify the name of the computer on which to create
         # the compatibility session.
-        # (Defaults to 'localhost')
         [Parameter()]
         [String]
         [Alias("cn")]
-            $ComputerName = $script:DefaultComputerName,
+            $ComputerName,
 
         # Specifies the configuration to connect to when creating the compatibility session
         # (Defaults to 'Microsoft.PowerShell')
         [Parameter()]
         [String]
-            $ConfigurationName = $script:DefaultConfigurationName,
+            $ConfigurationName,
 
         # Prefix to prepend to the imported command names
         [Parameter()]
@@ -483,10 +493,10 @@ function Import-WinModule
         }
         if ($noClobberNames)
         {
-            $importModuleParameters.PassThru = $true 
-            foreach ($name in $noClobberNames) 
-            { 
-                $module = Import-Module -Name $name -NoClobber @importModuleParameters 
+            $importModuleParameters.PassThru = $true
+            foreach ($name in $noClobberNames)
+            {
+                $module = Import-Module -Name $name -NoClobber @importModuleParameters
                 # Hack using private reflection to keep the proxy module from shadowing the real module.
                 $null = [PSModuleInfo].
                     GetMethod('SetName',[System.Reflection.BindingFlags]'Instance, NonPublic').
@@ -519,17 +529,16 @@ function Compare-WinModule
         # If you don't want to use the default compatibility session, use
         # this parameter to specify the name of the computer on which to create
         # the compatibility session.
-        # (Defaults to 'localhost')
         [Parameter()]
         [String]
         [Alias("cn")]
-            $ComputerName = $script:DefaultComputerName,
+            $ComputerName,
 
         # Specifies the configuration to connect to when creating the compatibility session
         # (Defaults to 'Microsoft.PowerShell')
         [Parameter()]
         [String]
-            $ConfigurationName = $script:DefaultConfigurationName,
+            $ConfigurationName,
 
         # If needed, use this parameter to specify credentials for the compatibility session
         [Parameter()]
@@ -580,17 +589,16 @@ function Copy-WinModule
         # If you don't want to use the default compatibility session, use
         # this parameter to specify the name of the computer on which to create
         # the compatibility session.
-        # (Defaults to 'localhost')
         [Parameter()]
         [String]
         [Alias("cn")]
-            $ComputerName = $script:DefaultComputerName,
+            $ComputerName,
 
         # Specifies the configuration to connect to when creating the compatibility session
         # (Defaults to 'Microsoft.PowerShell')
         [Parameter()]
         [String]
-            $ConfigurationName = $script:DefaultConfigurationName,
+            $ConfigurationName,
 
         # If needed, use this parameter to specify credentials for the compatibility session
         [Parameter()]
@@ -715,5 +723,6 @@ function Add-WindowsPSModulePath
         }
         $pathTable[$path] = $true
     }
+
     $Env:PSModulePath = $pathTable.Keys -join [System.IO.Path]::PathSeparator
 }
