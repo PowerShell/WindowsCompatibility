@@ -95,6 +95,27 @@ $SessionConfigurationName = 'Microsoft.PowerShell'
 
 Set-Alias -Name Add-WinPSModulePath -Value Add-WindowsPSModulePath
 
+# Location Changed handler that keeps the compatibility session PWD in sync with the parent PWD
+# This only applies on localhost.
+$locationChangedHandler = {
+    [PSSession] $session = Initialize-WinSession @PSBoundParameters -PassThru
+    if ($session.ComputerName -eq "localhost")
+    {
+        $newPath = $_.newPath
+        Invoke-Command -Session $session { Set-Location $using:newPath}
+    }
+}
+
+$ExecutionContext.InvokeCommand.LocationChangedAction = $locationChangedHandler
+
+# Remove the location changed handler if the module is removed.
+$MyInvocation.MyCommand.ScriptBlock.Module.OnRemove = {
+    if ($ExecutionContext.InvokeCommand.LocationChangedAction -eq $locationChangedHandler)
+    {
+        $ExecutionContext.InvokeCommand.LocationChangedAction = $null
+    }
+}
+
 function Initialize-WinSession
 {
     [CmdletBinding()]
@@ -170,6 +191,18 @@ function Initialize-WinSession
         $_.Name              -eq $script:SessionName
         } | Select-Object -First 1
 
+    # Deal with the possibilities of multiple sessions. This might arise
+    # from the user hitting ctrl-C. We'll make the assumption that the
+    # first one returned is the correct one and we'll remove the rest.
+    $session, $rest = $session
+    if ($rest)
+    {
+        foreach ($s in $rest)
+        {
+            Remove-PSSession  $s
+        }
+    }
+
     if ($session -and $session.State -ne "Opened")
     {
         Write-Verbose -Verbose:$verboseFlag "Removing closed compatibility session."
@@ -194,8 +227,13 @@ function Initialize-WinSession
         {
             $newPSSessionParameters.EnableNetworkAccess = $true
         }
-        Write-Verbose -Verbose:$verboseFlag "Created new session on host '$computername'"
+
+        Write-Verbose -Verbose:$verboseFlag "Created new compatibiilty session on host '$computername'"
         $session = New-PSSession @newPSSessionParameters | Select-Object -First 1
+        if ($session.ComputerName -eq "localhost")
+        {
+            Invoke-Command $session { Set-Location $using:PWD }
+        }
     }
     else
     {
