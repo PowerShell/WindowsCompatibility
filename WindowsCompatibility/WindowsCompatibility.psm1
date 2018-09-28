@@ -733,6 +733,10 @@ function Copy-WinModule
 
 function Add-WindowsPSModulePath
 {
+    [CmdletBinding(SupportsShouldProcess)]
+    [OutputType([void])]
+    param ()
+
     if ($PSVersionTable.PSEdition -eq 'Core' -and -not $IsWindows)
     {
         throw "This cmdlet is only supported on Windows"
@@ -743,6 +747,8 @@ function Add-WindowsPSModulePath
         return
     }
 
+    [bool] $verboseFlag = $PSBoundParameters['Verbose']
+    
     $paths =  @(
         $Env:PSModulePath -split [System.IO.Path]::PathSeparator
         "${Env:UserProfile}\Documents\WindowsPowerShell\Modules"
@@ -753,14 +759,25 @@ function Add-WindowsPSModulePath
     )
 
     $pathTable = [ordered] @{}
+    $doUpdate = $false
     foreach ($path in $paths)
     {
         if ($pathTable[$path])
         {
             continue
         }
+
+        if ($PSCmdlet.ShouldProcess($path, "Add to PSModulePath"))
+        {
+            Write-Verbose -Verbose:$verboseFlag "Adding '$path' to the PSModulePath."
+            $doUpdate = $true
+        }
+
         $pathTable[$path] = $true
     }
 
-    $Env:PSModulePath = $pathTable.Keys -join [System.IO.Path]::PathSeparator
+    if ($doUpdate)
+    {
+        $Env:PSModulePath = $pathTable.Keys -join [System.IO.Path]::PathSeparator
+    }
 }

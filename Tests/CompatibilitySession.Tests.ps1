@@ -194,14 +194,14 @@ Describe "Test the Windows PowerShell Compatibility Session functions" {
         }
     }
 
-    It "Should mirror directory changes in the compatibility session" {
+    It 'Should mirror directory changes in the compatibility session' {
         # Verify that the initial directories are sync'ed
-        Invoke-WinCommand { $pwd.Path } | Should -BeExactly $pwd.Path
+        Invoke-WinCommand { $pwd.Path } | Should -Be $pwd.Path
         # Change location and verify that the compat session directory also changed
         Push-Location ..
-        Invoke-WinCommand { $pwd.Path } | Should -BeExactly $pwd.Path
+        Invoke-WinCommand { $pwd.Path } | Should -Be $pwd.Path
         # Change back and verify again
         Pop-Location
-        Invoke-WinCommand { $pwd.Path } | Should -BeExactly $pwd.Path
+        Invoke-WinCommand { $pwd.Path } | Should -Be $pwd.Path
     }
 }
