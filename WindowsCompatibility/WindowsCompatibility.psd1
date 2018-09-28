@@ -33,11 +33,12 @@ FunctionsToExport = @(
 AliasesToExport = @('Add-WinPSModulePath')
 PrivateData = @{
     PSData = @{
-        Tags = @('Compatibility', 'Core')
+        Tags = @('Windows PowerShell', 'Compatibility', 'Core')
+        Prerelease = 'RC'
         LicenseUri = 'https://opensource.org/licenses/MIT'
         ProjectUri = 'https://github.com/PowerShell/WindowsCompatibility'
         ReleaseNotes = @'
-This is the first release of this module with the basic commands:
+This is the first release candidate (RC) of this module with the following commands:
     Initialize-WinSession
     Add-WinFunction
     Invoke-WinCommand

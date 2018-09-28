@@ -14,10 +14,23 @@ Describe "Test Add-WindowsPSModulePath cmdlet" {
         $env:PSModulePath = $originalPsModulePath
     }
 
-    It "Validate Windows PSModulePath is added on Core" {
-        $env:PSModulePath | Should -Not -BeLike "*\WindowsPowerShell\*"
+    It 'Validate that the system environment variable PSModulePath components are added to the $ENV:PSModulePath' {
         Add-WindowsPSModulePath | Should -BeNullOrEmpty
+        # a table of the current PSModulePath components
+        [hashtable] $currentPathTable = @{}
+        $env:PSModulePath.split(';').foreach{$currentPathTable[$_] = $true}
         $WindowsPSModulePath = [System.Environment]::GetEnvironmentVariable("psmodulepath", [System.EnvironmentVariableTarget]::Machine)
-        $env:PSModulePath | Should -BeLike "*$WindowsPSModulePath*"
+        $allComponentsInPath = $true
+        # Verify that all of the path components in the machine-scoped PSModulePath are
+        # also in the session module path.
+        foreach ($pc in $WindowsPSModulePath.Split(';'))
+        {
+            if ( -not $currentPathTable.ContainsKey($pc) )
+            {
+                $allComponents = $false
+            }
+        }
+        $allComponents | Should -Be $true:w
+        
     }
 }
