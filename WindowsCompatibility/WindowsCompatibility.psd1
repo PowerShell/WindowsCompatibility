@@ -7,7 +7,7 @@
 
 @{
 RootModule = 'WindowsCompatibility.psm1'
-ModuleVersion = '0.0.1'
+ModuleVersion = '1.0.0'
 CompatiblePSEditions = @('Core')
 GUID = '9d427bc5-2ae1-4806-b9d1-2ae62461767e'
 Author = 'PowerShell'
@@ -33,8 +33,8 @@ FunctionsToExport = @(
 AliasesToExport = @('Add-WinPSModulePath')
 PrivateData = @{
     PSData = @{
-        Tags = @('Windows PowerShell', 'Compatibility', 'Core')
-        Prerelease = 'RC'
+        Tags = @('WindowsPowerShell', 'Compatibility', 'Core')
+        Prerelease = 'rc1'
         LicenseUri = 'https://opensource.org/licenses/MIT'
         ProjectUri = 'https://github.com/PowerShell/WindowsCompatibility'
         ReleaseNotes = @'
