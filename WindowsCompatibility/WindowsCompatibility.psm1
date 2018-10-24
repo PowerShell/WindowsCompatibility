@@ -32,7 +32,7 @@ $NeverClobberList = @(
 ###########################################################################################
 # A list of compatibile modules that exist in Windows PowerShell that aren't available
 # to PowerShell Core by default. These modules, along with CIM modules can be installed
-# in the PowerShell Core module repository using the Copy-WinModule command.
+# in the PowerShell Core module repository using the Copy-WinModule command (if running on Windows).
 $CompatibleModules = @(
     "AppBackgroundTask",
     "AppLocker",
@@ -87,19 +87,40 @@ $CompatibleModules = @(
 # Module-scope variable to hold the active compatibility session name
 $SessionName = $null
 
-# The computer name to use if one isn't provided.
-$SessionComputerName = 'localhost'
+# The computer name to use if one isn't provided as a parameter. It can come from an environment variable.
+if ($env:WindowsCompatibilityComputerName)
+{
+    $SessionComputerName = $env:WindowsCompatibilityComputerName
+}
+else
+{
+    $SessionComputerName = 'localhost'
+}
 
-# Specifies the default configuration to connect to when creating the compatibility session
-$SessionConfigurationName = 'Microsoft.PowerShell'
-
+# Specifies the default configuration to find or to connect to when creating the compatibility session.
+# Windows uses WINRM form of parameters, non-windows uses SSH form
+if ($PSVersionTable.PSEdition -eq 'Core' -and -not $IsWindows)
+{
+    $SessionConfigurationName = 'DefaultShell'
+    if ($env:WindowsCompatibilityKeyFilePath)
+    {
+        $SessionKeyFilePath = $env:WindowsCompatibilityKeyFilePath
+        Write-Verbose -Message "$SessionKeyFilePath will be used as the key file"
+    }
+    else {
+        $SessionKeyFilePath = $null
+    }
+}
+else {
+    $SessionConfigurationName = 'Microsoft.PowerShell'
+}
 Set-Alias -Name Add-WinPSModulePath -Value Add-WindowsPSModulePath
 
 # Location Changed handler that keeps the compatibility session PWD in sync with the parent PWD
-# This only applies on localhost.
+# This only applies on localhost, but not from sessions in Windows Subsystem for Linux.
 $locationChangedHandler = {
     [PSSession] $session = Initialize-WinSession @PSBoundParameters -PassThru
-    if ($session.ComputerName -eq "localhost")
+    if ($session.ComputerName -eq "localhost" -and ($IsWindows -or $PSVersionTable.PSEdition -ne 'Core') )
     {
         $newPath = $_.newPath
         Invoke-Command -Session $session { Set-Location $using:newPath}
@@ -178,6 +199,10 @@ function Initialize-WinSession
     {
         $script:SessionName = "wincompat-$ComputerName-$($Credential.UserName)"
     }
+    elseif ($ComputerName -match '^\w+@\w+') #allow for ssh style name of "user@host:port"
+    {
+        $script:SessionName = "wincompat-$ComputerName"
+    }
     else
     {
         $script:SessionName = "wincompat-$ComputerName-$([environment]::UserName)"
@@ -186,7 +211,7 @@ function Initialize-WinSession
     Write-Verbose -Verbose:$verboseFlag "The compatibility session name is '$script:SessionName'."
 
     $session = Get-PSSession | Where-Object {
-        $_.ComputerName      -eq $ComputerName -and
+        $_.ComputerName      -eq ($ComputerName -replace '^\w+@','' -replace ':\d+$',"" )-and #allow for ssh style name of "user@host:port"
         $_.ConfigurationName -eq $ConfigurationName -and
         $_.Name              -eq $script:SessionName
         } | Select-Object -First 1
@@ -214,23 +239,39 @@ function Initialize-WinSession
     {
         $newPSSessionParameters = @{
             Verbose           = $verboseFlag
-            ComputerName      = $ComputerName
             Name              = $script:sessionName
-            ConfigurationName = $configurationName
             ErrorAction       = "Stop"
         }
-        if ($Credential)
+        #If not running on windows: use Hostname (not ComputerName) and use keyfilePath if one was set as an environment variable, and name from credential (if provided)
+        if ($PSVersionTable.PSEdition -eq 'Core' -and -not $IsWindows)
         {
-            $newPSSessionParameters.Credential = $Credential
+            $newPSSessionParameters.HostName = $ComputerName
+            if ($Credential)
+            {
+                $newPSSessionParameters.UserName = $Credential.UserName
+            }
+            if ($null -ne $SessionKeyFilePath )
+            {
+                $newPSSessionParameters.KeyFilePath = $SessionKeyFilePath
+            }
         }
-        if ($ComputerName -eq "localhost" -or $ComputerName -eq [environment]::MachineName)
-        {
-            $newPSSessionParameters.EnableNetworkAccess = $true
+        #if running on Windows use ComputerName (not HostName), ConfigurationName, Credential if provided and enableNetworkAccess if connecting to localhost.
+        else {
+            $newPSSessionParameters.ComputerName = $ComputerName
+            $newPSSessionParameters.ConfigurationName = $configurationName
+            if ($Credential)
+            {
+                $newPSSessionParameters.Credential = $Credential
+            }
+            if ($ComputerName -eq "localhost" -or $ComputerName -eq [environment]::MachineName)
+            {
+                $newPSSessionParameters.EnableNetworkAccess = $true
+            }
         }
-
-        Write-Verbose -Verbose:$verboseFlag "Created new compatibiilty session on host '$computername'"
+        Write-Verbose -Verbose:$verboseFlag "Creating new compatibiilty session with '$computername'"
         $session = New-PSSession @newPSSessionParameters | Select-Object -First 1
-        if ($session.ComputerName -eq "localhost")
+        #if connecting to localhost from a Windows session sync the current directory.
+        if ($session -and ($session.ComputerName -eq "localhost")  -and   ( $IsWindows -or $PSVersionTable.PSEdition -ne 'Core' )  )
         {
             Invoke-Command $session { Set-Location $using:PWD }
         }
@@ -649,6 +690,11 @@ function Copy-WinModule
             $Destination
     )
 
+    if ($PSVersionTable.PSEdition -eq 'Core' -and -not $IsWindows)
+    {
+        throw "This cmdlet is only supported on Windows"
+    }
+
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
     [bool] $whatIfFlag  = $PSBoundParameters['WhatIf']
     [bool] $confirmFlag = $PSBoundParameters['Confirm']
@@ -748,7 +794,7 @@ function Add-WindowsPSModulePath
     }
 
     [bool] $verboseFlag = $PSBoundParameters['Verbose']
-    
+
     $paths =  @(
         $Env:PSModulePath -split [System.IO.Path]::PathSeparator
         "${Env:UserProfile}\Documents\WindowsPowerShell\Modules"
