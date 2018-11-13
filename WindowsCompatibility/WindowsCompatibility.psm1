@@ -755,6 +755,8 @@ function Add-WindowsPSModulePath
         "${Env:ProgramFiles}\WindowsPowerShell\Modules"
         "${Env:WinDir}\system32\WindowsPowerShell\v1.0\Modules"
         [System.Environment]::GetEnvironmentVariable('PSModulePath',
+            [System.EnvironmentVariableTarget]::User) -split [System.IO.Path]::PathSeparator
+        [System.Environment]::GetEnvironmentVariable('PSModulePath',
             [System.EnvironmentVariableTarget]::Machine) -split [System.IO.Path]::PathSeparator
     )
 
