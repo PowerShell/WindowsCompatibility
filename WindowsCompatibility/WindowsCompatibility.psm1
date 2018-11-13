@@ -759,7 +759,7 @@ function Add-WindowsPSModulePath
     )
 
     $pathTable = [ordered] @{}
-    $doUpdate = $false
+
     foreach ($path in $paths)
     {
         if ($pathTable[$path])
@@ -770,14 +770,9 @@ function Add-WindowsPSModulePath
         if ($PSCmdlet.ShouldProcess($path, "Add to PSModulePath"))
         {
             Write-Verbose -Verbose:$verboseFlag "Adding '$path' to the PSModulePath."
-            $doUpdate = $true
+            $pathTable[$path] = $true
         }
-
-        $pathTable[$path] = $true
     }
 
-    if ($doUpdate)
-    {
-        $Env:PSModulePath = $pathTable.Keys -join [System.IO.Path]::PathSeparator
-    }
+    $Env:PSModulePath = $pathTable.Keys -join [System.IO.Path]::PathSeparator
 }
