@@ -34,11 +34,12 @@ AliasesToExport = @('Add-WinPSModulePath')
 PrivateData = @{
     PSData = @{
         Tags = @('WindowsPowerShell', 'Compatibility', 'Core')
-        Prerelease = 'rc1'
         LicenseUri = 'https://opensource.org/licenses/MIT'
         ProjectUri = 'https://github.com/PowerShell/WindowsCompatibility'
         ReleaseNotes = @'
-This is the first release candidate (RC) of this module with the following commands:
+This module provides a set of commands that allow you to use
+Windows PowerShell modules from PowerShell Core (PowerShell 6).
+The following commands are included: 
     Initialize-WinSession
     Add-WinFunction
     Invoke-WinCommand
@@ -46,12 +47,16 @@ This is the first release candidate (RC) of this module with the following comma
     Import-WinModule
     Compare-WinModule
     Copy-WinModule
-These commands provide a set of tools allowing you to run Windows PowerShell
-commands from PowerShell Core (PowerShell 6). See the help for the
-individual commands for examples on how to use this functionality.
+See the help for the individual commands for examples on how
+to use this functionality.
 
-Additionally, the command `Add-WindowsPSModulePath` enables enumerating
-existing Windows PowerShell modules within PowerShell Core 6.
+Additionally, the command `Add-WindowsPSModulePath` will update
+your $ENV:PSModulePath to include Windows PowerShell module directories
+within PowerShell Core 6.
+
+NOTE: This release is only intended to be used with PowerShell Core 6
+running on Microsoft Windows. Linux and MacOS are not supported at this
+time.
 '@
 
     } # End of PSData hashtable
