@@ -537,9 +537,12 @@ function Import-WinModule
             {
                 $module = Import-Module -Name $name -NoClobber @importModuleParameters
                 # Hack using private reflection to keep the proxy module from shadowing the real module.
-                $null = [PSModuleInfo].
-                    GetMethod('SetName',[System.Reflection.BindingFlags]'Instance, NonPublic').
-                        Invoke($module, @($module.Name + '.WinModule'))
+                if (-not $module.Name.EndsWith('.WinModule', [System.StringComparison]::InvariantCulture))
+                {
+                    $null = [PSModuleInfo].
+                        GetMethod('SetName',[System.Reflection.BindingFlags]'Instance, NonPublic').
+                            Invoke($module, @($module.Name + '.WinModule'))
+                }
                 if($PassThru.IsPresent)
                 {
                     $module
