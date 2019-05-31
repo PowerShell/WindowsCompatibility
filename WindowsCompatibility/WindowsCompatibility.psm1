@@ -147,8 +147,11 @@ function Initialize-WinSession
             $PassThru
     )
 
-    [bool] $verboseFlag = $PSBoundParameters['Verbose']
-
+    [bool] $verboseFlag = $false
+    if ($PSBoundParameters['Verbose'])
+    {
+        $verboseFlag = $true
+    }
     if ($ComputerName -eq ".")
     {
         $ComputerName = "localhost"
@@ -380,7 +383,11 @@ function Get-WinModule
             $Full
     )
 
-    [bool] $verboseFlag = $PSBoundParameters['Verbose']
+    [bool] $verboseFlag = $false
+    if ($PSBoundParameters['Verbose'])
+    {
+        $verboseFlag = $true
+    }
 
     Write-Verbose -Verbose:$verboseFlag 'Connecting to compatibility session.'
     $initializeWinSessionParameters = @{
@@ -474,7 +481,11 @@ function Import-WinModule
             $PassThru
     )
 
-    [bool] $verboseFlag = $PSBoundParameters['Verbose']
+    [bool] $verboseFlag = $False
+    if ($PSBoundParameters['Verbose'])
+    {
+        $verboseFlag = $true
+    }
 
     Write-Verbose -Verbose:$verboseFlag "Connecting to compatibility session."
     $initializeWinSessionParameters = @{
@@ -585,7 +596,11 @@ function Compare-WinModule
             $Credential
     )
 
-    [bool] $verboseFlag = $PSBoundParameters['Verbose']
+    [bool] $verboseFlag = $false
+    if ($PSBoundParameters['Verbose'])
+    {
+        $verboseFlag = $true
+    }
 
     Write-Verbose -Verbose:$verboseFlag "Initializing compatibility session"
     $initializeWinSessionParameters = @{
@@ -650,7 +665,11 @@ function Copy-WinModule
             $Destination
     )
 
-    [bool] $verboseFlag = $PSBoundParameters['Verbose']
+    [bool] $verboseFlag = $false
+    if ($PSBoundParameters['Verbose'])
+    {
+        $verboseFlag = $true
+    }
     [bool] $whatIfFlag  = $PSBoundParameters['WhatIf']
     [bool] $confirmFlag = $PSBoundParameters['Confirm']
 
@@ -748,8 +767,12 @@ function Add-WindowsPSModulePath
         return
     }
 
-    [bool] $verboseFlag = $PSBoundParameters['Verbose']
-    
+    [bool] $verboseFlag = $false
+    if ($PSBoundParameters['Verbose'])
+    {
+        $verboseFlag = $true
+    }
+
     $paths =  @(
         $Env:PSModulePath -split [System.IO.Path]::PathSeparator
         "${Env:UserProfile}\Documents\WindowsPowerShell\Modules"
@@ -779,3 +802,4 @@ function Add-WindowsPSModulePath
 
     $Env:PSModulePath = $pathTable.Keys -join [System.IO.Path]::PathSeparator
 }
+
