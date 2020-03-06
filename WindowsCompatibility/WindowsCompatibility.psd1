@@ -7,7 +7,7 @@
 
 @{
 RootModule = 'WindowsCompatibility.psm1'
-ModuleVersion = '1.0.0'
+ModuleVersion = '1.0.1'
 CompatiblePSEditions = @('Core')
 GUID = '9d427bc5-2ae1-4806-b9d1-2ae62461767e'
 Author = 'PowerShell'
@@ -31,6 +31,7 @@ FunctionsToExport = @(
     'Add-WindowsPSModulePath'
 )
 AliasesToExport = @('Add-WinPSModulePath')
+CmdletsToExport = @()
 PrivateData = @{
     PSData = @{
         Tags = @('WindowsPowerShell', 'Compatibility', 'Core')
